@@ -1,0 +1,10 @@
+<resources>
+    <string name="app_name">Popular Movies</string>
+    <string name="action_settings">Settings</string>
+    <string name="main_grid_view">movies_grid_view</string>
+    <string name="title_activity_movie_details">MovieDetails</string>
+    <string name="string_release_date">Release Date</string>
+    <string name="string_rating">Rating</string>
+    <string name="string_overview">Overview</string>
+    <string name="title_activity_test">Test</string>
+</resources>
