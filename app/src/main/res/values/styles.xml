@@ -1,4 +1,4 @@
-<resources>
+<resources xmlns:tools="http://schemas.android.com/tools">
 
     <!-- Base application theme. -->
     <style name="AppTheme" parent="Theme.AppCompat.Light.DarkActionBar">
@@ -19,11 +19,15 @@
 
     <style name="subheading">
         <item name="android:textSize">16sp</item>
-        <item name="android:layout_marginRight">8dp</item>
+        <item name="android:layout_marginRight">@dimen/layout_margin_8dp</item>
+        <item name="android:layout_marginTop">@dimen/layout_margin_8dp</item>
     </style>
-
+    <style name="subheading_land">
+        <item name="android:textSize">16sp</item>
+        <item name="android:layout_marginLeft">@dimen/layout_margin_16dp</item>
+        <item name="android:layout_marginTop">@dimen/layout_margin_16dp</item>
+    </style>
     <style name="movie_title">
-        <item name="android:layout_alignParentTop">true</item>
         <item name="android:layout_marginRight">@dimen/layout_margin_16dp</item>
         <item name="android:layout_marginTop">@dimen/layout_margin_8dp</item>
         <item name="android:layout_marginLeft">@dimen/layout_margin_16dp</item>

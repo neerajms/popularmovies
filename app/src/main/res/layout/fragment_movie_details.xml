@@ -12,21 +12,11 @@
         tools:context="com.neerajms99b.neeraj.popularmovies.MovieDetailsFragment"
         tools:showIn="@layout/fragment_movie_details">
 
-        <!--<android.support.v7.widget.CardView-->
-            <!--android:id="@+id/cardview_title"-->
-            <!--android:layout_width="match_parent"-->
-            <!--android:layout_height="wrap_content"-->
-            <!--android:layout_marginTop="@dimen/layout_margin_8dp"-->
-            <!--android:layout_marginLeft="@dimen/layout_margin_8dp"-->
-            <!--android:layout_marginRight="@dimen/layout_margin_8dp"-->
-            <!--android:elevation="@dimen/card_view_elevation"-->
-            <!--card_view:cardCornerRadius="@dimen/card_view_corner_radius">-->
         <TextView
             android:id="@+id/movie_title_text_view"
             style="@style/movie_title"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content" />
-        <!--</android.support.v7.widget.CardView>-->
 
         <android.support.v7.widget.CardView
             android:id="@+id/cardview"
@@ -56,8 +46,6 @@
                     android:layout_weight="1"
                     android:orientation="vertical">
 
-
-
                     <RelativeLayout
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
@@ -85,6 +73,7 @@
                         android:layout_height="wrap_content"
                         android:layout_alignParentBottom="true"
                         android:layout_marginBottom="@dimen/padding_8dp"
+                        android:layout_marginEnd="@dimen/layout_margin_8dp"
                         android:layout_marginRight="@dimen/padding_8dp"
                         android:layout_marginTop="@dimen/padding_8dp">
 
@@ -101,9 +90,13 @@
                             android:layout_height="wrap_content"
                             android:layout_below="@+id/subheading_rating"
                             android:gravity="center_vertical" />
+
                     </RelativeLayout>
+
                 </RelativeLayout>
+
             </LinearLayout>
+
         </android.support.v7.widget.CardView>
 
         <TextView

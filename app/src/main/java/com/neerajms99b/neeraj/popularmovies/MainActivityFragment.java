@@ -37,16 +37,16 @@ import java.util.ArrayList;
  * A placeholder fragment containing a simple view.
  */
 public class MainActivityFragment extends Fragment {
-    PopMoviesAdaptor popMoviesAdaptor = null;
+    PopMoviesAdaptor mPopMoviesAdaptor = null;
     ArrayList<MovieDetailsObject> mMovieDetailsArrayList = null;
-    MovieDetailsObject obj;
-    String FETCH_MOVIES_BASE_URL = null;
-    final static String POPULARITY = "POPULARITY";
-    final static String RATING = "RATING";
-    static String mSortCriteria = POPULARITY;
+    String mFetchMoviesBaseUrl = null;
+    final String mPopularityTag = "Popularity";
+    final String mRatingTag = "Rating";
+    String mSortCriteria = mPopularityTag;
+    final String mApiKeyParam = "api_key";
+    final String mKeyValue = "Key goes here";
 
     public MainActivityFragment() {
-
     }
 
     @Override
@@ -65,12 +65,11 @@ public class MainActivityFragment extends Fragment {
 
         GridView moviesGridView = (GridView) rootView.findViewById(R.id.main_grid_view);
         mMovieDetailsArrayList = new ArrayList<MovieDetailsObject>();
-        popMoviesAdaptor = new PopMoviesAdaptor(getActivity());
-
+        mPopMoviesAdaptor = new PopMoviesAdaptor(getActivity());
 
         updateMovieGridView();
 
-        moviesGridView.setAdapter(popMoviesAdaptor);
+        moviesGridView.setAdapter(mPopMoviesAdaptor);
         moviesGridView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             public void onItemClick(AdapterView<?> parent, View v,
                                     int position, long id) {
@@ -81,7 +80,7 @@ public class MainActivityFragment extends Fragment {
                 movieDetailsIntent.putExtra("movieUserRating", tempObj.mStrMovieUserRating);
                 movieDetailsIntent.putExtra("movieReleaseDate", tempObj.mStrMovieReleaseDate);
                 movieDetailsIntent.putExtra("moviePlot", tempObj.mStrMoviePlot);
-                movieDetailsIntent.putExtra("movieBackDropPath",tempObj.mStrMovieBackDropPath);
+                movieDetailsIntent.putExtra("movieBackDropPath", tempObj.mStrMovieBackDropPath);
                 startActivity(movieDetailsIntent);
             }
         });
@@ -103,11 +102,11 @@ public class MainActivityFragment extends Fragment {
         MenuItem menuItemSortPopularity = (MenuItem) menu.findItem(R.id.menuSortPopularity);
         MenuItem menuItemSortRating = (MenuItem) menu.findItem(R.id.menuSortRating);
 
-        if (mSortCriteria.equals(POPULARITY)) {
+        if (mSortCriteria.equals(mPopularityTag)) {
             if (!menuItemSortPopularity.isChecked()) {
                 menuItemSortPopularity.setChecked(true);
             }
-        } else if (mSortCriteria.equals(RATING)) {
+        } else if (mSortCriteria.equals(mRatingTag)) {
             if (!menuItemSortRating.isChecked()) {
                 menuItemSortRating.setChecked(true);
             }
@@ -120,12 +119,12 @@ public class MainActivityFragment extends Fragment {
         switch (id) {
             case R.id.menuSortPopularity:
                 item.setChecked(true);
-                mSortCriteria = POPULARITY;
+                mSortCriteria = mPopularityTag;
                 updateMovieGridView();
                 return true;
             case R.id.menuSortRating:
                 item.setChecked(true);
-                mSortCriteria = RATING;
+                mSortCriteria = mRatingTag;
                 updateMovieGridView();
                 return true;
             default:
@@ -134,10 +133,10 @@ public class MainActivityFragment extends Fragment {
     }
 
     public void updateMovieGridView() {
-        if (mSortCriteria.equals(POPULARITY)) {
-            FETCH_MOVIES_BASE_URL = "https://api.themoviedb.org/3/movie/popular?";
-        } else if (mSortCriteria.equals("RATING")) {
-            FETCH_MOVIES_BASE_URL = "https://api.themoviedb.org/3/movie/top_rated?";
+        if (mSortCriteria.equals(mPopularityTag)) {
+            mFetchMoviesBaseUrl = "https://api.themoviedb.org/3/movie/popular?";
+        } else if (mSortCriteria.equals(mRatingTag)) {
+            mFetchMoviesBaseUrl = "https://api.themoviedb.org/3/movie/top_rated?";
         }
         FetchMoviesTask movieDetails = new FetchMoviesTask();
         movieDetails.execute();
@@ -155,22 +154,21 @@ public class MainActivityFragment extends Fragment {
 
             try {
 
-                final String API_KEY_PARAM = "api_key";
-                final String key = "Key goes here";
-
-                Uri builtUri = Uri.parse(FETCH_MOVIES_BASE_URL)
+                Uri builtUri = Uri.parse(mFetchMoviesBaseUrl)
                         .buildUpon()
-                        .appendQueryParameter(API_KEY_PARAM, key)
+                        .appendQueryParameter(mApiKeyParam, mKeyValue)
                         .build();
                 URL url = new URL(builtUri.toString());
                 urlConnection = (HttpURLConnection) url.openConnection();
                 urlConnection.setRequestMethod("GET");
                 urlConnection.connect();
                 InputStream inputStream = urlConnection.getInputStream();
-                StringBuffer buffer = new StringBuffer();
+
                 if (inputStream == null) {
                     return null;
                 }
+
+                StringBuffer buffer = new StringBuffer();
 
                 reader = new BufferedReader(new InputStreamReader(inputStream));
                 String line;
@@ -208,9 +206,9 @@ public class MainActivityFragment extends Fragment {
         protected void onPostExecute(Object result) {
             if (result != null) {
                 for (int i = 0; i < mMovieDetailsArrayList.size(); ++i) {
-                    popMoviesAdaptor.add(mMovieDetailsArrayList.get(i));
+                    mPopMoviesAdaptor.add(mMovieDetailsArrayList.get(i));
                 }
-                popMoviesAdaptor.notifyDataSetChanged();
+                mPopMoviesAdaptor.notifyDataSetChanged();
             } else {
                 Log.e(LOG_TAG, "ERROR : Result Null");
             }
@@ -309,7 +307,7 @@ public class MainActivityFragment extends Fragment {
 
             if (convertView == null) {
                 imageView = new ImageView(mContext);
-                imageView.setLayoutParams(new GridView.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, 700));
+                imageView.setLayoutParams(new GridView.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, 800));
                 imageView.setScaleType(ImageView.ScaleType.FIT_XY);
             } else {
                 imageView = (ImageView) convertView;

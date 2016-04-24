@@ -20,7 +20,6 @@ public class MovieDetails extends AppCompatActivity {
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
 
-        ImageView imageView = (ImageView)findViewById(R.id.app_bar_image);
         Intent intent = getIntent();
         final String movieTitle = intent.getExtras().getString("movieTitle");
         String moviePosterPath = intent.getExtras().getString("moviePosterFullPath");
@@ -28,17 +27,22 @@ public class MovieDetails extends AppCompatActivity {
         String movieReleaseDate = intent.getExtras().getString("movieReleaseDate");
         String moviePlot = intent.getExtras().getString("moviePlot");
         String movieBackDropPath = intent.getExtras().getString("movieBackDropPath");
-        Picasso.with(this).load(movieBackDropPath).into(imageView);
-        setTitle(movieTitle);
-        getSupportFragmentManager().beginTransaction()
-                .replace(R.id.movie_detail_container,
-                        MovieDetailsFragment.newInstance(movieTitle,
-                                moviePosterPath,
-                                movieUserRating,
-                                movieReleaseDate,
-                                moviePlot,
-                                movieBackDropPath), "MovieDetailsFragment").commit();
 
+        ImageView imageView = (ImageView) findViewById(R.id.back_drop_image);
+        Picasso.with(this).load(movieBackDropPath).into(imageView);
+
+        setTitle(movieTitle);
+
+        if (savedInstanceState == null) {
+            getSupportFragmentManager().beginTransaction()
+                    .replace(R.id.movie_detail_container,
+                            MovieDetailsFragment.newInstance(movieTitle,
+                                    moviePosterPath,
+                                    movieUserRating,
+                                    movieReleaseDate,
+                                    moviePlot,
+                                    movieBackDropPath), "MovieDetailsFragment").commit();
+        }
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
     }
 }

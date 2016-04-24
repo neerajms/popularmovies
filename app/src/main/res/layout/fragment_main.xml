@@ -3,7 +3,7 @@
     android:id="@+id/main_grid_view"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    android:background="@color/colorBackground"
     android:numColumns="@integer/columns"
     tools:context="com.neerajms99b.neeraj.popularmovies.MainActivityFragment"
-    tools:showIn="@layout/activity_main"
-    android:background="@color/colorBackground"/>
+    tools:showIn="@layout/activity_main" />

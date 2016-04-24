@@ -3,30 +3,24 @@ package com.neerajms99b.neeraj.popularmovies;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
 import android.os.Bundle;
-import android.support.v7.widget.CardView;
-import android.support.v7.widget.Toolbar;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.AbsListView;
-import android.widget.FrameLayout;
 import android.widget.ImageView;
 import android.widget.TextView;
 
-import com.bumptech.glide.Glide;
 import com.squareup.picasso.Picasso;
 
 /**
  * A placeholder fragment containing a simple view.
  */
 public class MovieDetailsFragment extends Fragment {
-    String moviePosterPath;
-    String movieUserRating;
-    String movieReleaseDate;
-    String moviePlot;
-    String movieTitle;
-    String movieBackDropPath;
+    String mMoviePosterPath;
+    String mMovieUserRating;
+    String mMovieReleaseDate;
+    String mMoviePlot;
+    String mMovieTitle;
+    String mMovieBackDropPath;
 
     final static String KEY_MOVIE_POSTER_PATH = "movie_poster_full_path";
     final static String KEY_MOVIE_USER_RATING = "movie_user_rating";
@@ -61,12 +55,12 @@ public class MovieDetailsFragment extends Fragment {
         super.onCreate(savedInstanceState);
 
         if (getArguments() != null) {
-            movieTitle = this.getArguments().getString(KEY_MOVIE_TITLE);
-            moviePosterPath = this.getArguments().getString(KEY_MOVIE_POSTER_PATH);
-            movieUserRating = this.getArguments().getString(KEY_MOVIE_USER_RATING);
-            movieReleaseDate = this.getArguments().getString(KEY_MOVIE_RELEASE_DATE);
-            moviePlot = this.getArguments().getString(KEY_MOVIE_PLOT);
-            movieBackDropPath = this.getArguments().getString(KEY_MOVIE_BACK_DROP_PATH);
+            mMovieTitle = this.getArguments().getString(KEY_MOVIE_TITLE);
+            mMoviePosterPath = this.getArguments().getString(KEY_MOVIE_POSTER_PATH);
+            mMovieUserRating = this.getArguments().getString(KEY_MOVIE_USER_RATING);
+            mMovieReleaseDate = this.getArguments().getString(KEY_MOVIE_RELEASE_DATE);
+            mMoviePlot = this.getArguments().getString(KEY_MOVIE_PLOT);
+            mMovieBackDropPath = this.getArguments().getString(KEY_MOVIE_BACK_DROP_PATH);
         }
     }
 
@@ -76,20 +70,20 @@ public class MovieDetailsFragment extends Fragment {
         View rootView = inflater.inflate(R.layout.fragment_movie_details, container, false);
 
         TextView movieTitleText = (TextView) rootView.findViewById(R.id.movie_title_text_view);
-        movieTitleText.setText(movieTitle);
+        movieTitleText.setText(mMovieTitle);
 
         ImageView moviePosterImage = (ImageView) rootView.findViewById(R.id.movie_poster_image_view);
-        Picasso.with(getActivity()).load(moviePosterPath).resize(400, 350).into(moviePosterImage);
+        Picasso.with(getActivity()).load(mMoviePosterPath).resize(400, 350).into(moviePosterImage);
 
-        movieUserRating = movieUserRating + "/10";
+        mMovieUserRating = mMovieUserRating + "/10";
         TextView movieRatingText = (TextView) rootView.findViewById(R.id.movie_rating_text_view);
-        movieRatingText.setText(movieUserRating);
+        movieRatingText.setText(mMovieUserRating);
 
         TextView movieOverviewText = (TextView) rootView.findViewById(R.id.movie_overview_text_view);
-        movieOverviewText.setText(moviePlot);
+        movieOverviewText.setText(mMoviePlot);
 
         TextView movieReleaseDateText = (TextView) rootView.findViewById(R.id.movie_releasedate_text_view);
-        movieReleaseDateText.setText(movieReleaseDate);
+        movieReleaseDateText.setText(mMovieReleaseDate);
 
         return rootView;
     }
