@@ -2,20 +2,19 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     tools:context="com.neerajms99b.neeraj.popularmovies.MainActivity">
-    <item
-        android:title="Sort"
+    <item xmlns:app="http://schemas.android.com/apk/res-auto"
         android:id="@+id/action_sort"
-        xmlns:app="http://schemas.android.com/apk/res-auto"
         android:icon="@drawable/ic_action_sort"
+        android:title="Sort"
         app:showAsAction="always">
         <menu>
             <group android:checkableBehavior="single">
-            <item
-                android:id="@+id/menuSortPopularity"
-                android:title="Sort by Popularity" />
-            <item
-                android:id="@+id/menuSortRating"
-                android:title="Sort by Rating" />
+                <item
+                    android:id="@+id/menuSortPopularity"
+                    android:title="Sort by Popularity" />
+                <item
+                    android:id="@+id/menuSortRating"
+                    android:title="Sort by Rating" />
             </group>
         </menu>
     </item>
