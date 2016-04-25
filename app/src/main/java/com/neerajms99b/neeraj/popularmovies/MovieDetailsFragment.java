@@ -22,12 +22,12 @@ public class MovieDetailsFragment extends Fragment {
     String mMovieTitle;
     String mMovieBackDropPath;
 
-    final static String KEY_MOVIE_POSTER_PATH = "movie_poster_full_path";
-    final static String KEY_MOVIE_USER_RATING = "movie_user_rating";
-    final static String KEY_MOVIE_RELEASE_DATE = "movie_release_date";
-    final static String KEY_MOVIE_PLOT = "movie_plot";
-    final static String KEY_MOVIE_TITLE = "movie_title";
-    final static String KEY_MOVIE_BACK_DROP_PATH = "movie_back_drop_path";
+    final static String mKeyMoviePosterPath = "movie_poster_full_path";
+    final static String mKeyMovieUserRating = "movie_user_rating";
+    final static String mKeyMovieReleaseDate = "movie_release_date";
+    final static String mKeyMoviePlot = "movie_plot";
+    final static String mKeyMovieTitle = "movie_title";
+    final static String mKeyMovieBackDropPath = "movie_back_drop_path";
 
     public MovieDetailsFragment() {
     }
@@ -40,12 +40,12 @@ public class MovieDetailsFragment extends Fragment {
                                                    String movieBackDropPath) {
         MovieDetailsFragment fragment = new MovieDetailsFragment();
         Bundle args = new Bundle();
-        args.putString(KEY_MOVIE_TITLE, movieTitle);
-        args.putString(KEY_MOVIE_POSTER_PATH, moviePosterPath);
-        args.putString(KEY_MOVIE_USER_RATING, movieUserRating);
-        args.putString(KEY_MOVIE_RELEASE_DATE, movieReleaseDate);
-        args.putString(KEY_MOVIE_PLOT, moviePlot);
-        args.putString(KEY_MOVIE_BACK_DROP_PATH,movieBackDropPath);
+        args.putString(mKeyMovieTitle, movieTitle);
+        args.putString(mKeyMoviePosterPath, moviePosterPath);
+        args.putString(mKeyMovieUserRating, movieUserRating);
+        args.putString(mKeyMovieReleaseDate, movieReleaseDate);
+        args.putString(mKeyMoviePlot, moviePlot);
+        args.putString(mKeyMovieBackDropPath,movieBackDropPath);
         fragment.setArguments(args);
         return fragment;
     }
@@ -55,12 +55,12 @@ public class MovieDetailsFragment extends Fragment {
         super.onCreate(savedInstanceState);
 
         if (getArguments() != null) {
-            mMovieTitle = this.getArguments().getString(KEY_MOVIE_TITLE);
-            mMoviePosterPath = this.getArguments().getString(KEY_MOVIE_POSTER_PATH);
-            mMovieUserRating = this.getArguments().getString(KEY_MOVIE_USER_RATING);
-            mMovieReleaseDate = this.getArguments().getString(KEY_MOVIE_RELEASE_DATE);
-            mMoviePlot = this.getArguments().getString(KEY_MOVIE_PLOT);
-            mMovieBackDropPath = this.getArguments().getString(KEY_MOVIE_BACK_DROP_PATH);
+            mMovieTitle = this.getArguments().getString(mKeyMovieTitle);
+            mMoviePosterPath = this.getArguments().getString(mKeyMoviePosterPath);
+            mMovieUserRating = this.getArguments().getString(mKeyMovieUserRating);
+            mMovieReleaseDate = this.getArguments().getString(mKeyMovieReleaseDate);
+            mMoviePlot = this.getArguments().getString(mKeyMoviePlot);
+            mMovieBackDropPath = this.getArguments().getString(mKeyMovieBackDropPath);
         }
     }
 

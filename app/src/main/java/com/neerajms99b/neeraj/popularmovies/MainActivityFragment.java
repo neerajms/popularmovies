@@ -37,7 +37,7 @@ import java.util.ArrayList;
  * A placeholder fragment containing a simple view.
  */
 public class MainActivityFragment extends Fragment {
-    PopMoviesAdaptor mPopMoviesAdaptor = null;
+    PopMoviesAdapter mPopMoviesAdapter = null;
     ArrayList<MovieDetailsObject> mMovieDetailsArrayList = null;
     String mFetchMoviesBaseUrl = null;
     final String mPopularityTag = "Popularity";
@@ -65,11 +65,11 @@ public class MainActivityFragment extends Fragment {
 
         GridView moviesGridView = (GridView) rootView.findViewById(R.id.main_grid_view);
         mMovieDetailsArrayList = new ArrayList<MovieDetailsObject>();
-        mPopMoviesAdaptor = new PopMoviesAdaptor(getActivity());
+        mPopMoviesAdapter = new PopMoviesAdapter(getActivity());
 
         updateMovieGridView();
 
-        moviesGridView.setAdapter(mPopMoviesAdaptor);
+        moviesGridView.setAdapter(mPopMoviesAdapter);
         moviesGridView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             public void onItemClick(AdapterView<?> parent, View v,
                                     int position, long id) {
@@ -206,9 +206,9 @@ public class MainActivityFragment extends Fragment {
         protected void onPostExecute(Object result) {
             if (result != null) {
                 for (int i = 0; i < mMovieDetailsArrayList.size(); ++i) {
-                    mPopMoviesAdaptor.add(mMovieDetailsArrayList.get(i));
+                    mPopMoviesAdapter.add(mMovieDetailsArrayList.get(i));
                 }
-                mPopMoviesAdaptor.notifyDataSetChanged();
+                mPopMoviesAdapter.notifyDataSetChanged();
             } else {
                 Log.e(LOG_TAG, "ERROR : Result Null");
             }
@@ -283,10 +283,10 @@ public class MainActivityFragment extends Fragment {
         }
     }
 
-    public class PopMoviesAdaptor extends ArrayAdapter<MovieDetailsObject> {
+    public class PopMoviesAdapter extends ArrayAdapter<MovieDetailsObject> {
         Context mContext;
 
-        PopMoviesAdaptor(Context context) {
+        PopMoviesAdapter(Context context) {
             super(context, 0);
             mContext = context;
         }

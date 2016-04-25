@@ -26,11 +26,16 @@ public class MainActivity extends AppCompatActivity {
         setContentView(R.layout.activity_main);
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
+
         CoordinatorLayout coordinatorLayout = (CoordinatorLayout) findViewById(R.id.coordinator_layout);
+
+        /*Show a message if there is no internet*/
         if (!isInternetOn(this)) {
             Snackbar.make(coordinatorLayout, "No internet connection", Snackbar.LENGTH_INDEFINITE).show();
         }
     }
+
+    /*Method to check if there is internet connection*/
 
     public boolean isInternetOn(Context context) {
         ConnectivityManager connectivityManager =
