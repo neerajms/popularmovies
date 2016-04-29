@@ -2,25 +2,15 @@ package com.neerajms99b.neeraj.popularmovies;
 
 import android.content.Context;
 import android.content.Intent;
-import android.content.SharedPreferences;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
 import android.os.Bundle;
-import android.preference.PreferenceManager;
 import android.support.design.widget.CoordinatorLayout;
-import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.Snackbar;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
-import android.util.AttributeSet;
 import android.util.Log;
 import android.view.View;
-import android.view.Menu;
-import android.view.MenuItem;
-import android.widget.ImageView;
-import android.widget.Toast;
-
-import com.squareup.picasso.Picasso;
 
 public class MainActivity extends AppCompatActivity implements MainActivityFragment.OnGridItemSelectedListener {
     boolean mTwoPane = false;
@@ -94,7 +84,7 @@ public class MainActivity extends AppCompatActivity implements MainActivityFragm
                                         mMovieBackDropPath), "MovieDetailsFragment").commit();
 //            }
         }else {
-            Intent movieDetailsIntent = new Intent(this, MovieDetails.class);
+            Intent movieDetailsIntent = new Intent(this, MovieDetailsActivity.class);
             movieDetailsIntent.putExtra("movieTitle", mMovieTitle);
             movieDetailsIntent.putExtra("moviePosterFullPath", mMoviePosterFullPath);
             movieDetailsIntent.putExtra("movieUserRating", mMovieUserRating);

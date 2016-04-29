@@ -11,7 +11,7 @@ import android.widget.ImageView;
 
 import com.squareup.picasso.Picasso;
 
-public class MovieDetails extends AppCompatActivity {
+public class MovieDetailsActivity extends AppCompatActivity {
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -29,7 +29,7 @@ public class MovieDetails extends AppCompatActivity {
         String movieBackDropPath = intent.getExtras().getString("movieBackDropPath");
 
         ImageView imageView = (ImageView) findViewById(R.id.back_drop_image);
-        Picasso.with(this).load(movieBackDropPath).into(imageView);
+        Picasso.with(this).load(movieBackDropPath).placeholder(R.drawable.placeholder_loading).into(imageView);
 
         setTitle(movieTitle);
 

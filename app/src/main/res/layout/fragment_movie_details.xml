@@ -33,17 +33,17 @@
 
                 <ImageView
                     android:id="@+id/movie_poster_image_view"
-                    android:layout_width="@dimen/image_view_width_portrait"
+                    android:layout_width="wrap_content"
                     android:layout_height="match_parent"
-                    android:layout_weight="0"
+                    android:layout_weight="1"
                     android:padding="@dimen/padding_8dp"
                     android:scaleType="fitXY" />
 
                 <RelativeLayout
-                    android:layout_width="match_parent"
+                    android:layout_width="wrap_content"
                     android:layout_height="match_parent"
                     android:layout_gravity="center_horizontal"
-                    android:layout_weight="1"
+                    android:layout_weight="0"
                     android:orientation="vertical">
 
                     <RelativeLayout

@@ -73,7 +73,7 @@ public class MovieDetailsFragment extends Fragment {
         movieTitleText.setText(mMovieTitle);
 
         ImageView moviePosterImage = (ImageView) rootView.findViewById(R.id.movie_poster_image_view);
-        Picasso.with(getActivity()).load(mMoviePosterPath).resize(400, 350).into(moviePosterImage);
+        Picasso.with(getActivity()).load(mMoviePosterPath).placeholder(R.drawable.placeholder_loading).resize(400, 350).into(moviePosterImage);
 
         mMovieUserRating = mMovieUserRating + "/10";
         TextView movieRatingText = (TextView) rootView.findViewById(R.id.movie_rating_text_view);
