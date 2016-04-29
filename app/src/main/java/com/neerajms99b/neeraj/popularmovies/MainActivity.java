@@ -17,12 +17,27 @@ import android.util.Log;
 import android.view.View;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.widget.ImageView;
+import android.widget.Toast;
 
-public class MainActivity extends AppCompatActivity {
+import com.squareup.picasso.Picasso;
 
+public class MainActivity extends AppCompatActivity implements MainActivityFragment.OnGridItemSelectedListener {
+    boolean mTwoPane = false;
+
+    String mMovieTitle;
+    String mMoviePosterFullPath;
+    String mMovieUserRating;
+    String mMovieReleaseDate;
+    String mMoviePlot;
+    String mMovieBackDropPath;
+    Bundle mSavedInstance;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
+        View.OnClickListener onClickListener;
+        final Context context = this;
         super.onCreate(savedInstanceState);
+        mSavedInstance = savedInstanceState;
         setContentView(R.layout.activity_main);
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
@@ -31,10 +46,66 @@ public class MainActivity extends AppCompatActivity {
 
         /*Show a message if there is no internet*/
         if (!isInternetOn(this)) {
+
+
             Snackbar.make(coordinatorLayout, "No internet connection", Snackbar.LENGTH_INDEFINITE).show();
+
+
+
         }
+        if (this.findViewById(R.id.movie_detail_container)!=null){
+            mTwoPane = true;
+//            if (savedInstanceState == null) {
+//            Log.d("MOVIE TITLE",mMovieTitle);
+
+//            }
+            Log.d("Found:","two pane detected");
+        }else {
+            mTwoPane = false;
+
+        }
+
+
+
     }
 
+    @Override
+    public boolean isTwoPane() {
+        return mTwoPane;
+    }
+
+    @Override
+    public void onMovieSelected(String movieTitle, String moviePosterFullPath, String movieUserRating, String movieReleaseDate, String moviePlot, String movieBackDropPath) {
+        mMovieTitle = movieTitle;
+        mMoviePosterFullPath = moviePosterFullPath;
+        mMovieUserRating = movieUserRating;
+        mMovieReleaseDate=movieReleaseDate;
+        mMoviePlot=moviePlot;
+        mMovieBackDropPath=movieBackDropPath;
+        if (mTwoPane == true) {
+//            if (mSavedInstance == null) {
+                getSupportFragmentManager().beginTransaction()
+                        .replace(R.id.movie_detail_container,
+                                MovieDetailsFragment.newInstance(mMovieTitle,
+                                        mMoviePosterFullPath,
+                                        mMovieUserRating,
+                                        mMovieReleaseDate,
+                                        mMoviePlot,
+                                        mMovieBackDropPath), "MovieDetailsFragment").commit();
+//            }
+        }else {
+            Intent movieDetailsIntent = new Intent(this, MovieDetails.class);
+            movieDetailsIntent.putExtra("movieTitle", mMovieTitle);
+            movieDetailsIntent.putExtra("moviePosterFullPath", mMoviePosterFullPath);
+            movieDetailsIntent.putExtra("movieUserRating", mMovieUserRating);
+            movieDetailsIntent.putExtra("movieReleaseDate", mMovieReleaseDate);
+            movieDetailsIntent.putExtra("moviePlot", mMoviePlot);
+            movieDetailsIntent.putExtra("movieBackDropPath", mMovieBackDropPath);
+            startActivity(movieDetailsIntent);
+        }
+
+        Log.d("title::",mMovieTitle);
+    }
     /*Method to check if there is internet connection*/
 
     public boolean isInternetOn(Context context) {
