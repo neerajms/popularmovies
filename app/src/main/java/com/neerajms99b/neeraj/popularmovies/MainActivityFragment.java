@@ -44,8 +44,10 @@ public class MainActivityFragment extends Fragment {
     final String mRatingTag = "Rating";
     String mSortCriteria = mPopularityTag;
     final String mApiKeyParam = "api_key";
-    final String mKeyValue = "Key goes here";
-
+    final String mKeyValue = "2b34f0a753ed8e38b7546773dbed2720";
+    MainActivity mCallBack;
+    int mGridPosition;
+    Bundle mSavedInstanceState;
     public MainActivityFragment() {
     }
 
@@ -54,15 +56,26 @@ public class MainActivityFragment extends Fragment {
         super.onCreate(savedInstanceState);
         if (savedInstanceState != null) {
             mSortCriteria = savedInstanceState.getString("sortcriteria");
+            mGridPosition=savedInstanceState.getInt("gridposition");
         }
         setHasOptionsMenu(true);
     }
 
+    public interface OnGridItemSelectedListener{
+        public void onMovieSelected(String movieTitle,
+                                    String moviePosterFullPath,
+                                    String movieUserRating,
+                                    String movieReleaseDate,
+                                    String moviePlot,
+                                    String movieBackDropPath);
+        public boolean isTwoPane();
+        }
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
         View rootView = inflater.inflate(R.layout.fragment_main, container, false);
-
+        mCallBack = (MainActivity) getActivity();
+    mSavedInstanceState = savedInstanceState;
         GridView moviesGridView = (GridView) rootView.findViewById(R.id.main_grid_view);
         mMovieDetailsArrayList = new ArrayList<MovieDetailsObject>();
         mPopMoviesAdapter = new PopMoviesAdapter(getActivity());
@@ -73,15 +86,15 @@ public class MainActivityFragment extends Fragment {
         moviesGridView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             public void onItemClick(AdapterView<?> parent, View v,
                                     int position, long id) {
+                mGridPosition = position;
                 MovieDetailsObject tempObj = mMovieDetailsArrayList.get(position);
-                Intent movieDetailsIntent = new Intent(getActivity(), MovieDetails.class);
-                movieDetailsIntent.putExtra("movieTitle", tempObj.mStrMovieTitle);
-                movieDetailsIntent.putExtra("moviePosterFullPath", tempObj.mStrMoviePosterFullPath);
-                movieDetailsIntent.putExtra("movieUserRating", tempObj.mStrMovieUserRating);
-                movieDetailsIntent.putExtra("movieReleaseDate", tempObj.mStrMovieReleaseDate);
-                movieDetailsIntent.putExtra("moviePlot", tempObj.mStrMoviePlot);
-                movieDetailsIntent.putExtra("movieBackDropPath", tempObj.mStrMovieBackDropPath);
-                startActivity(movieDetailsIntent);
+
+                mCallBack.onMovieSelected(tempObj.mStrMovieTitle,
+                        tempObj.mStrMoviePosterFullPath,
+                        tempObj.mStrMovieUserRating,
+                        tempObj.mStrMovieReleaseDate,
+                        tempObj.mStrMoviePlot,
+                        tempObj.mStrMovieBackDropPath);
             }
         });
 
@@ -91,6 +104,7 @@ public class MainActivityFragment extends Fragment {
     @Override
     public void onSaveInstanceState(Bundle outState) {
         outState.putString("sortcriteria", mSortCriteria);
+        outState.putInt("gridposition",mGridPosition);
         super.onSaveInstanceState(outState);
     }
 
@@ -120,11 +134,13 @@ public class MainActivityFragment extends Fragment {
             case R.id.menuSortPopularity:
                 item.setChecked(true);
                 mSortCriteria = mPopularityTag;
+                mGridPosition = 0;
                 updateMovieGridView();
                 return true;
             case R.id.menuSortRating:
                 item.setChecked(true);
                 mSortCriteria = mRatingTag;
+                mGridPosition = 0;
                 updateMovieGridView();
                 return true;
             default:
@@ -138,6 +154,7 @@ public class MainActivityFragment extends Fragment {
         } else if (mSortCriteria.equals(mRatingTag)) {
             mFetchMoviesBaseUrl = "https://api.themoviedb.org/3/movie/top_rated?";
         }
+
         FetchMoviesTask movieDetails = new FetchMoviesTask();
         movieDetails.execute();
     }
@@ -209,6 +226,16 @@ public class MainActivityFragment extends Fragment {
                     mPopMoviesAdapter.add(mMovieDetailsArrayList.get(i));
                 }
                 mPopMoviesAdapter.notifyDataSetChanged();
+                if (mCallBack.isTwoPane()) {
+                    MovieDetailsObject tempObj = mMovieDetailsArrayList.get(mGridPosition);
+
+                    mCallBack.onMovieSelected(tempObj.mStrMovieTitle,
+                            tempObj.mStrMoviePosterFullPath,
+                            tempObj.mStrMovieUserRating,
+                            tempObj.mStrMovieReleaseDate,
+                            tempObj.mStrMoviePlot,
+                            tempObj.mStrMovieBackDropPath);
+                }
             } else {
                 Log.e(LOG_TAG, "ERROR : Result Null");
             }
@@ -307,7 +334,11 @@ public class MainActivityFragment extends Fragment {
 
             if (convertView == null) {
                 imageView = new ImageView(mContext);
-                imageView.setLayoutParams(new GridView.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, 800));
+                if (mCallBack.isTwoPane()){
+                    imageView.setLayoutParams(new GridView.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, 300));
+                }else {
+                    imageView.setLayoutParams(new GridView.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, 800));
+                }
                 imageView.setScaleType(ImageView.ScaleType.FIT_XY);
             } else {
                 imageView = (ImageView) convertView;
