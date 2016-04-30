@@ -14,7 +14,7 @@ import android.view.View;
 
 public class MainActivity extends AppCompatActivity implements MainActivityFragment.OnGridItemSelectedListener {
     boolean mTwoPane = false;
-
+    String mMovieId;
     String mMovieTitle;
     String mMoviePosterFullPath;
     String mMovieUserRating;
@@ -65,7 +65,8 @@ public class MainActivity extends AppCompatActivity implements MainActivityFragm
     }
 
     @Override
-    public void onMovieSelected(String movieTitle, String moviePosterFullPath, String movieUserRating, String movieReleaseDate, String moviePlot, String movieBackDropPath) {
+    public void onMovieSelected(String movieId,String movieTitle, String moviePosterFullPath, String movieUserRating, String movieReleaseDate, String moviePlot, String movieBackDropPath) {
+        mMovieId = movieId;
         mMovieTitle = movieTitle;
         mMoviePosterFullPath = moviePosterFullPath;
         mMovieUserRating = movieUserRating;
@@ -76,7 +77,8 @@ public class MainActivity extends AppCompatActivity implements MainActivityFragm
 //            if (mSavedInstance == null) {
                 getSupportFragmentManager().beginTransaction()
                         .replace(R.id.movie_detail_container,
-                                MovieDetailsFragment.newInstance(mMovieTitle,
+                                MovieDetailsFragment.newInstance(mMovieId,
+                                        mMovieTitle,
                                         mMoviePosterFullPath,
                                         mMovieUserRating,
                                         mMovieReleaseDate,
@@ -85,6 +87,7 @@ public class MainActivity extends AppCompatActivity implements MainActivityFragm
 //            }
         }else {
             Intent movieDetailsIntent = new Intent(this, MovieDetailsActivity.class);
+            movieDetailsIntent.putExtra("movieId",mMovieId);
             movieDetailsIntent.putExtra("movieTitle", mMovieTitle);
             movieDetailsIntent.putExtra("moviePosterFullPath", mMoviePosterFullPath);
             movieDetailsIntent.putExtra("movieUserRating", mMovieUserRating);

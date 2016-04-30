@@ -37,9 +37,9 @@ public class PopMoviesAdapter extends ArrayAdapter<MovieDetailsParcelable> {
         if (convertView == null) {
             imageView = new ImageView(mContext);
             if (new MainActivity().isTwoPane()) {
-                imageView.setLayoutParams(new GridView.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, 200));
+                imageView.setLayoutParams(new GridView.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, 100));
             } else {
-                imageView.setLayoutParams(new GridView.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, 800));
+                imageView.setLayoutParams(new GridView.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, 600));
             }
             imageView.setScaleType(ImageView.ScaleType.FIT_XY);
         } else {

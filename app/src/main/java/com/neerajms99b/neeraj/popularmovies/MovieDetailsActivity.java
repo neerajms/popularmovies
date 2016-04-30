@@ -21,7 +21,8 @@ public class MovieDetailsActivity extends AppCompatActivity {
         setSupportActionBar(toolbar);
 
         Intent intent = getIntent();
-        final String movieTitle = intent.getExtras().getString("movieTitle");
+        String movieId = intent.getExtras().getString("movieId");
+        String movieTitle = intent.getExtras().getString("movieTitle");
         String moviePosterPath = intent.getExtras().getString("moviePosterFullPath");
         String movieUserRating = intent.getExtras().getString("movieUserRating");
         String movieReleaseDate = intent.getExtras().getString("movieReleaseDate");
@@ -36,7 +37,8 @@ public class MovieDetailsActivity extends AppCompatActivity {
         if (savedInstanceState == null) {
             getSupportFragmentManager().beginTransaction()
                     .replace(R.id.movie_detail_container,
-                            MovieDetailsFragment.newInstance(movieTitle,
+                            MovieDetailsFragment.newInstance(movieId,
+                                    movieTitle,
                                     moviePosterPath,
                                     movieUserRating,
                                     movieReleaseDate,

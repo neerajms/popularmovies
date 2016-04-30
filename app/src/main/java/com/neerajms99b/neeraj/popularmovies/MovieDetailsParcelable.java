@@ -8,26 +8,32 @@ import android.os.Parcelable;
  * Created by neeraj on 29/4/16.
  */
 public class MovieDetailsParcelable implements Parcelable {
+    String mMovieId;
     String mMovieTitle;
     String mMoviePosterFullPath;
     String mMovieUserRating;
     String mMovieReleaseDate;
     String mMoviePlot;
     String mMovieBackDropPath;
-    public MovieDetailsParcelable(String movieTitle,
-            String moviePosterFullPath,
-            String movieUserRating,
-            String movieReleaseDate,
-            String moviePlot,
-            String movieBackDropPath){
-        this.mMovieTitle =movieTitle;
+
+    public MovieDetailsParcelable(String movieId,
+                                  String movieTitle,
+                                  String moviePosterFullPath,
+                                  String movieUserRating,
+                                  String movieReleaseDate,
+                                  String moviePlot,
+                                  String movieBackDropPath) {
+        this.mMovieId=movieId;
+        this.mMovieTitle = movieTitle;
         this.mMoviePosterFullPath = moviePosterFullPath;
         this.mMovieUserRating = movieUserRating;
         this.mMovieReleaseDate = movieReleaseDate;
         this.mMoviePlot = moviePlot;
         this.mMovieBackDropPath = movieBackDropPath;
     }
-    private MovieDetailsParcelable(Parcel in){
+
+    private MovieDetailsParcelable(Parcel in) {
+        mMovieId = in.readString();
         mMovieTitle = in.readString();
         mMoviePosterFullPath = in.readString();
         mMovieUserRating = in.readString();
@@ -35,6 +41,7 @@ public class MovieDetailsParcelable implements Parcelable {
         mMoviePlot = in.readString();
         mMovieBackDropPath = in.readString();
     }
+
     @Override
     public int describeContents() {
         return 0;
@@ -42,6 +49,7 @@ public class MovieDetailsParcelable implements Parcelable {
 
     @Override
     public void writeToParcel(Parcel dest, int flags) {
+        dest.writeString(mMovieId);
         dest.writeString(mMovieTitle);
         dest.writeString(mMoviePosterFullPath);
         dest.writeString(mMovieUserRating);

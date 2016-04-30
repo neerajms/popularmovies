@@ -39,9 +39,11 @@ import java.io.InputStreamReader;
 import java.net.HttpURLConnection;
 import java.net.URL;
 import java.util.ArrayList;
+import java.util.StringTokenizer;
 
-/**public class PopMoviesAdapter {
-}
+/**
+ * public class PopMoviesAdapter {
+ * }
  * A placeholder fragment containing a simple view.
  */
 public class MainActivityFragment extends Fragment {
@@ -54,13 +56,14 @@ public class MainActivityFragment extends Fragment {
     final String mApiKeyParam = "api_key";
     final String mKeyValue = "2b34f0a753ed8e38b7546773dbed2720";
     MainActivity mCallBack;
-    boolean twoPane ;
+    boolean twoPane;
     int mGridPosition;
     Bundle mSavedInstanceState;
 //    MovieDetailsParcelable[] movieDetailsParcelables;
 
     public MainActivityFragment() {
     }
+
 
     public static ArrayList<MovieDetailsParcelable> getMovieDetailsArrayList() {
         return mMovieDetailsArrayList;
@@ -80,7 +83,8 @@ public class MainActivityFragment extends Fragment {
     }
 
     public interface OnGridItemSelectedListener {
-        public void onMovieSelected(String movieTitle,
+        public void onMovieSelected(String movieId,
+                                    String movieTitle,
                                     String moviePosterFullPath,
                                     String movieUserRating,
                                     String movieReleaseDate,
@@ -112,7 +116,8 @@ public class MainActivityFragment extends Fragment {
                 mGridPosition = position;
                 MovieDetailsParcelable tempObj = mMovieDetailsArrayList.get(position);
 
-                mCallBack.onMovieSelected(tempObj.mMovieTitle,
+                mCallBack.onMovieSelected(tempObj.mMovieId,
+                        tempObj.mMovieTitle,
                         tempObj.mMoviePosterFullPath,
                         tempObj.mMovieUserRating,
                         tempObj.mMovieReleaseDate,
@@ -180,32 +185,27 @@ public class MainActivityFragment extends Fragment {
         }
 
         // Instantiate the RequestQueue.
-        RequestQueue queue = Volley.newRequestQueue(getActivity());
         Uri builtUri = Uri.parse(mFetchMoviesBaseUrl)
                 .buildUpon()
                 .appendQueryParameter(mApiKeyParam, mKeyValue)
                 .build();
         String url = builtUri.toString();
-// Request a string response from the provided URL.
-        StringRequest stringRequest = new StringRequest(Request.Method.GET, url,
-                new Response.Listener<String>() {
-                    @Override
-                    public void onResponse(String response) {
-                        try {
-                            getMoviesDataFromJson(response);
-                        } catch (JSONException je) {
-
-                        }
-                        onPostExecute();
-                    }
-                }, new Response.ErrorListener() {
+        RequestQueue queue = Volley.newRequestQueue(getActivity());
+        FetchDataTask fetchMoviesTask = new FetchDataTask();
+        VolleyCallBack volleyCallBack = new VolleyCallBack() {
             @Override
-            public void onErrorResponse(VolleyError error) {
+            public void returnResponse(String result) {
+                try {
+                    getMoviesDataFromJson(result);
+                    onPostExecute();
+                } catch (JSONException je) {
 
+                }
             }
-        });
-// Add the request to the RequestQueue.
-        queue.add(stringRequest);
+        };
+        fetchMoviesTask.executeThread(url, queue, volleyCallBack);
+
+
 //        FetchMoviesTask movieDetails = new FetchMoviesTask();
 //        movieDetails.execute();
     }
@@ -220,13 +220,15 @@ public class MainActivityFragment extends Fragment {
 //                            mMovieDetailsArrayList.get(i).mStrMovieReleaseDate,
 //                            mMovieDetailsArrayList.get(i).mStrMoviePlot,
 //                            mMovieDetailsArrayList.get(i).mStrMovieBackDropPath);
+            Log.d("id",mMovieDetailsArrayList.get(i).mMovieId);
 
         }
         mPopMoviesAdapter.notifyDataSetChanged();
         if (mCallBack.isTwoPane()) {
             MovieDetailsParcelable tempObj = mMovieDetailsArrayList.get(mGridPosition);
 
-            mCallBack.onMovieSelected(tempObj.mMovieTitle,
+            mCallBack.onMovieSelected(tempObj.mMovieId,
+                    tempObj.mMovieTitle,
                     tempObj.mMoviePosterFullPath,
                     tempObj.mMovieUserRating,
                     tempObj.mMovieReleaseDate,
@@ -237,7 +239,7 @@ public class MainActivityFragment extends Fragment {
 
     public ArrayList<MovieDetailsParcelable> getMoviesDataFromJson(String moviesJsonStr)
             throws JSONException {
-
+        final String TMDB_MOVIE_ID = "id";
         final String TMDB_RESULTS = "results";
         final String TMDB_MOVIE_TITLE = "original_title";
         final String TMDB_POSTER_PATH = "poster_path";
@@ -248,7 +250,8 @@ public class MainActivityFragment extends Fragment {
         String posterBasePath = "http://image.tmdb.org/t/p/w342/";
         String backDropBasePath = "http://image.tmdb.org/t/p/w500/";
 
-        String movieTitle,
+        String movieId,
+                movieTitle,
                 moviePosterPath,
                 moviePlot,
                 movieUserRating,
@@ -261,25 +264,25 @@ public class MainActivityFragment extends Fragment {
 
         for (int i = 0; i < moviesArray.length(); i++) {
             JSONObject singleMovieDetails = moviesArray.getJSONObject(i);
+            movieId = singleMovieDetails.getString(TMDB_MOVIE_ID);
             movieTitle = singleMovieDetails.getString(TMDB_MOVIE_TITLE);
             moviePosterPath = posterBasePath + singleMovieDetails.getString(TMDB_POSTER_PATH);
             moviePlot = singleMovieDetails.getString(TMDB_PLOT);
             movieUserRating = singleMovieDetails.getString(TMDB_USER_RATING);
             movieReleaseDate = singleMovieDetails.getString(TMDB_RELEASE_DATE);
             movieBackdropPath = backDropBasePath + singleMovieDetails.getString(TMDB_BACKDROP_PATH);
-            MovieDetailsParcelable movie = new MovieDetailsParcelable(movieTitle,
+            MovieDetailsParcelable movie = new MovieDetailsParcelable(movieId,
+                    movieTitle,
                     moviePosterPath,
                     movieUserRating,
                     movieReleaseDate,
                     moviePlot,
                     movieBackdropPath);
             mMovieDetailsArrayList.add(movie);
-            Log.d("MovieTitle:", mMovieDetailsArrayList.get(i).mMovieTitle);
+//            Log.d("MovieTitle:", mMovieDetailsArrayList.get(i).mMovieTitle);
 
         }
+
         return mMovieDetailsArrayList;
     }
-
-
-
 }
