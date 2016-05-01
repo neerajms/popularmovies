@@ -7,4 +7,5 @@
     <string name="string_rating">Rating</string>
     <string name="string_overview">Overview</string>
     <string name="title_activity_test">Test</string>
+    <string name="title_activity_review_display">ReviewDisplayActivity</string>
 </resources>

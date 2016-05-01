@@ -1,6 +1,7 @@
 package com.neerajms99b.neeraj.popularmovies;
 
 import android.content.Context;
+import android.content.Intent;
 import android.net.Uri;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
@@ -108,7 +109,7 @@ public class MovieDetailsFragment extends Fragment {
                 .appendQueryParameter(mApiKeyParam, mKeyValue)
                 .build();
         String url = builtUri.toString();
-        Log.d("URL:", url);
+
         queue = Volley.newRequestQueue(getActivity());
         FetchDataTask fetchMoviesTask = new FetchDataTask();
         VolleyCallBack volleyCallBack = new VolleyCallBack() {
@@ -116,7 +117,7 @@ public class MovieDetailsFragment extends Fragment {
             public void returnResponse(String result) {
 
                 getTrailersFromJson(result);
-                Log.d("Response trailers:", result);
+
             }
         };
         fetchMoviesTask.executeThread(url, queue, volleyCallBack);
@@ -131,9 +132,8 @@ public class MovieDetailsFragment extends Fragment {
             JSONArray trailersArray = trailersJsonObject.getJSONArray(TMDB_RESULTS);
             mTrailersList.clear();
             for (int i = 0; i < trailersArray.length(); i++) {
-                trailerKey = "https://i.ytimg.com/vi/" + trailersArray.getJSONObject(i).getString(TMDB_TRAILER_KEY) + "/default.jpg";
+                trailerKey = trailersArray.getJSONObject(i).getString(TMDB_TRAILER_KEY);
                 mTrailersList.add(trailerKey);
-                Log.d("Trailerkey:", mTrailersList.get(i));
 
             }
             mTrailerAdapter.notifyDataSetChanged();
@@ -150,13 +150,11 @@ public class MovieDetailsFragment extends Fragment {
                 .appendQueryParameter(mApiKeyParam, mKeyValue)
                 .build();
         String url = builtUri.toString();
-        Log.d("URL:", url);
         FetchDataTask fetchMoviesTask = new FetchDataTask();
         VolleyCallBack volleyCallBack = new VolleyCallBack() {
             @Override
             public void returnResponse(String result) {
                 getReviewsFromJson(result);
-                Log.d("Response reviews:", result);
             }
         };
         fetchMoviesTask.executeThread(url, queue, volleyCallBack);
@@ -178,8 +176,6 @@ public class MovieDetailsFragment extends Fragment {
                 ReviewDetails reviewDetailsObject = new ReviewDetails(author,content);
 
                 mReviewsList.add(reviewDetailsObject);
-                Log.d("Author:", mReviewsList.get(i).mAuthor);
-                Log.d("Content:", mReviewsList.get(i).mContent);
 
             }
             mReviewsAdapter.notifyDataSetChanged();
@@ -205,7 +201,7 @@ public class MovieDetailsFragment extends Fragment {
 
         mTrailersList = new ArrayList<String>();
         mReviewsList = new ArrayList<ReviewDetails>();
-        mTrailerAdapter = new TrailerAdapter();
+        mTrailerAdapter = new TrailerAdapter(getActivity());
         mReviewsAdapter = new ReviewsAdapter();
 //        LinearLayout trailerView = (LinearLayout) rootView.findViewById(R.id.trailer_list);
 //        trailerView.
@@ -215,7 +211,7 @@ public class MovieDetailsFragment extends Fragment {
         mTrailersLayoutManager.canScrollHorizontally();
         mTrailersRecyclerView.setLayoutManager(mTrailersLayoutManager);
         mTrailersRecyclerView.setAdapter(mTrailerAdapter);
-
+//mTrailerAdapter
         mReviewsRecyclerView = (RecyclerView)rootView.findViewById(R.id.reviews_recycler_view);
         mReviewsRecyclerView.setHasFixedSize(true);
         mReviewsLayoutManager = new LinearLayoutManager(getActivity(),LinearLayoutManager.VERTICAL,false);
@@ -242,28 +238,44 @@ public class MovieDetailsFragment extends Fragment {
         return rootView;
     }
 
+
     public class TrailerAdapter extends RecyclerView.Adapter<TrailerAdapter.ViewHolder> {
         Context mContext;
 
-        public class ViewHolder extends RecyclerView.ViewHolder {
+
+
+        public class ViewHolder extends RecyclerView.ViewHolder implements View.OnClickListener {
             // each data item is just a string in this case
             public ImageView mTrailerImageView;
 
+
+            @Override
+            public void onClick(View v) {
+                Intent intent = new Intent(Intent.ACTION_VIEW);
+                intent.setData(Uri.parse("http://www.youtube.com/watch?v="+mTrailersList.get(getPosition())));
+                startActivity(intent);
+            }
+
             public ViewHolder(ImageView v) {
                 super(v);
+                v.setClickable(true);
+                v.setOnClickListener(this);
                 mTrailerImageView = v;
             }
         }
 
 
+        public TrailerAdapter(Context context){
+            mContext = context;
+        }
+
         @Override
         public void onBindViewHolder(ViewHolder holder, int position) {
-            Picasso.with(getContext()).load(mTrailersList.get(position)).placeholder(R.drawable.placeholder_loading).into(holder.mTrailerImageView);
+            Picasso.with(getContext()).load("https://i.ytimg.com/vi/" + mTrailersList.get(position)+ "/hqdefault.jpg").placeholder(R.drawable.placeholder_loading).into(holder.mTrailerImageView);
         }
 
         @Override
         public int getItemCount() {
-            Log.d("Listsize:",String.valueOf(mTrailersList.size()));
             return mTrailersList.size();
         }
 
@@ -272,7 +284,7 @@ public class MovieDetailsFragment extends Fragment {
             ImageView v = (ImageView) LayoutInflater.from(parent.getContext())
                     .inflate(R.layout.trailer_image_view, parent, false);
                 v.setLayoutParams(new RecyclerView.LayoutParams(700, 500));
-            v.setScaleType(ImageView.ScaleType.FIT_XY);
+            v.setScaleType(ImageView.ScaleType.CENTER_CROP);
             ViewHolder vh = new ViewHolder(v);
             return vh;
         }
@@ -283,20 +295,33 @@ public class MovieDetailsFragment extends Fragment {
         }
 
 
+
+
     }
     public class ReviewsAdapter extends RecyclerView.Adapter<ReviewsAdapter.ViewHolder> {
         Context mContext;
 
-        public class ViewHolder extends RecyclerView.ViewHolder {
+        public class ViewHolder extends RecyclerView.ViewHolder implements View.OnClickListener{
             // each data item is just a string in this case
             public LinearLayout mReviewsLayout;
             public TextView mAuthorTextView;
             public TextView mContentTextView;
-            public ViewHolder(LinearLayout v,TextView authorTextView,TextView contentTextView) {
+
+            @Override
+            public void onClick(View v) {
+                Intent intent = new Intent(getActivity(),ReviewDisplayActivity.class);
+                intent.putExtra("review_content",mReviewsList.get(getPosition()).mContent);
+                startActivity(intent);
+            }
+
+            public ViewHolder(LinearLayout v, TextView authorTextView, TextView contentTextView) {
                 super(v);
+//                contentTextView.setClickable(true);
+//               contentTextView.setOnClickListener(this);
                 mReviewsLayout = v;
                 mAuthorTextView = authorTextView;
                 mContentTextView = contentTextView;
+
             }
         }
 
@@ -304,13 +329,14 @@ public class MovieDetailsFragment extends Fragment {
         @Override
         public void onBindViewHolder(ViewHolder holder, int position) {
 //            Picasso.with(getContext()).load(mTrailersList.get(position)).placeholder(R.drawable.placeholder_loading).into(holder.mTrailerImageView);
-            holder.mAuthorTextView.setText(mReviewsList.get(position).mAuthor);
-            holder.mContentTextView.setText(mReviewsList.get(position).mContent);
+            holder.mAuthorTextView.setText("Review by "+mReviewsList.get(position).mAuthor);
+
+                holder.mContentTextView.setText(mReviewsList.get(position).mContent);
+
         }
 
         @Override
         public int getItemCount() {
-            Log.d("Listsize:",String.valueOf(mReviewsList.size()));
             return mReviewsList.size();
         }
 
@@ -321,6 +347,7 @@ public class MovieDetailsFragment extends Fragment {
             v.setLayoutParams(new RecyclerView.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT));
             TextView author = (TextView)v.findViewById(R.id.author_text_view);
             TextView content = (TextView)v.findViewById(R.id.content_text_view);
+//            content.setMaxLines(10);
             ViewHolder vh = new ViewHolder(v,author,content);
             return vh;
         }

@@ -15,6 +15,6 @@
     <dimen name="movie_title_text">20sp</dimen>
     <dimen name="layout_margin_24dp">24dp</dimen>
     <dimen name="overview_body_text">14sp</dimen>
-    <dimen name="collapsing_toolbar_height">224dp</dimen>
+    <dimen name="collapsing_toolbar_height">192dp</dimen>
     <dimen name="toolbar_elevation">4dp</dimen>
 </resources>

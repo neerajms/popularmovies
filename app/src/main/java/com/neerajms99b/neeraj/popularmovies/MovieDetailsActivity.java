@@ -29,8 +29,8 @@ public class MovieDetailsActivity extends AppCompatActivity {
         String moviePlot = intent.getExtras().getString("moviePlot");
         String movieBackDropPath = intent.getExtras().getString("movieBackDropPath");
 
-//        ImageView imageView = (ImageView) findViewById(R.id.back_drop_image);
-//        Picasso.with(this).load(movieBackDropPath).placeholder(R.drawable.placeholder_loading).into(imageView);
+        ImageView imageView = (ImageView) findViewById(R.id.back_drop_image);
+        Picasso.with(this).load(movieBackDropPath).placeholder(R.drawable.placeholder_loading).into(imageView);
 
         setTitle(movieTitle);
 
