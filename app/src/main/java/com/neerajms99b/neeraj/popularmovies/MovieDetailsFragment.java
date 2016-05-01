@@ -284,7 +284,8 @@ public class MovieDetailsFragment extends Fragment {
             ImageView v = (ImageView) LayoutInflater.from(parent.getContext())
                     .inflate(R.layout.trailer_image_view, parent, false);
                 v.setLayoutParams(new RecyclerView.LayoutParams(700, 500));
-            v.setScaleType(ImageView.ScaleType.CENTER_CROP);
+            v.setPadding(32,32,0,32);
+            v.setScaleType(ImageView.ScaleType.FIT_XY);
             ViewHolder vh = new ViewHolder(v);
             return vh;
         }
