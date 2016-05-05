@@ -6,15 +6,19 @@
         android:id="@+id/action_sort"
         android:icon="@drawable/ic_action_sort"
         android:title="Sort"
-        app:showAsAction="always">
+        android:orderInCategory="100"
+        app:showAsAction="always"
+        >
         <menu>
             <group android:checkableBehavior="single">
+                <item android:id="@+id/menuFavorites"
+                    android:title="Favorites"/>
                 <item
                     android:id="@+id/menuSortPopularity"
-                    android:title="Sort by Popularity" />
+                    android:title="Popular" />
                 <item
                     android:id="@+id/menuSortRating"
-                    android:title="Sort by Rating" />
+                    android:title="Top Rated" />
             </group>
         </menu>
     </item>

@@ -18,12 +18,15 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content" />
 
+
         <android.support.v7.widget.CardView
             android:id="@+id/cardview"
             android:layout_width="match_parent"
 
             android:layout_height="400dp"
             android:layout_margin="@dimen/layout_margin_8dp"
+            android:layout_marginTop="@dimen/layout_margin_8dp"
+            android:layout_marginBottom="@dimen/layout_margin_8dp"
             android:elevation="@dimen/card_view_elevation"
             card_view:cardCornerRadius="@dimen/card_view_corner_radius">
 
@@ -47,7 +50,20 @@
                     android:layout_weight="0"
                     android:orientation="vertical">
 
+                    <ImageButton
+                        android:layout_width="wrap_content"
+                        android:id="@+id/favorite_button"
+                        android:layout_height="wrap_content"
+                        android:background="@android:color/transparent"
+                        android:layout_alignParentBottom="true"
+                        android:layout_marginBottom="@dimen/layout_margin_8dp"
+                        android:layout_toRightOf="@+id/layout_rating"
+                        android:src="@drawable/ic_action_favourite"
+                        android:tag="R.drawable.favorite"
+                        android:onClick="favoriteMovie"/>
+
                     <RelativeLayout
+                        android:id="@+id/layout_release_date"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:layout_above="@+id/layout_rating">
@@ -103,7 +119,7 @@
         <android.support.v7.widget.CardView
             android:id="@+id/overview_cardview"
             android:layout_width="match_parent"
-
+android:minHeight="150dp"
             android:layout_height="wrap_content"
             android:layout_below="@+id/cardview"
             android:layout_margin="@dimen/layout_margin_8dp"

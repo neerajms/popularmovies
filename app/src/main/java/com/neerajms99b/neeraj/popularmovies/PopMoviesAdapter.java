@@ -1,6 +1,8 @@
 package com.neerajms99b.neeraj.popularmovies;
 
 import android.content.Context;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ArrayAdapter;
@@ -8,6 +10,10 @@ import android.widget.GridView;
 import android.widget.ImageView;
 
 import com.squareup.picasso.Picasso;
+
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
 
 /**
  * Created by neeraj on 29/4/16.
@@ -46,10 +52,28 @@ public class PopMoviesAdapter extends ArrayAdapter<MovieDetailsParcelable> {
             imageView = (ImageView) convertView;
         }
         MovieDetailsParcelable tempMovieObject = MainActivityFragment.getMovieDetailsArrayList().get(position);
-        Picasso.with(mContext)
-                .load(tempMovieObject.mMoviePosterFullPath)
-                .placeholder(R.drawable.placeholder_loading)
-                .into(imageView);
+        if(MainActivityFragment.noNetwork){
+            FileInputStream inputStream;
+            try {
+                File f=new File(tempMovieObject.mMoviePosterFullPath, tempMovieObject.mMovieId+".png");
+                Bitmap b = BitmapFactory.decodeStream(new FileInputStream(f));
+//                ImageView img=(ImageView)findViewById(R.id.temp_image);
+//                img.setImageBitmap(b);
+                imageView.setImageBitmap(b);
+
+            }
+            catch (FileNotFoundException e)
+            {
+                e.printStackTrace();
+            }
+
+        }else {
+            Picasso.with(mContext)
+                    .load(tempMovieObject.mMoviePosterFullPath)
+                    .placeholder(R.drawable.placeholder_loading)
+                    .into(imageView);
+
+        }
         return imageView;
     }
 }
