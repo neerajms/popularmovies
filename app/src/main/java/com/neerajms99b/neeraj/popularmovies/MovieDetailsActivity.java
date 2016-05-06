@@ -1,43 +1,21 @@
 package com.neerajms99b.neeraj.popularmovies;
 
 import android.content.ContentValues;
-import android.content.Context;
-import android.content.ContextWrapper;
 import android.content.Intent;
-import android.content.SharedPreferences;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.drawable.BitmapDrawable;
-import android.graphics.drawable.Drawable;
 import android.net.Uri;
 import android.os.Bundle;
-import android.support.design.widget.FloatingActionButton;
-import android.support.design.widget.Snackbar;
-import android.support.v4.app.Fragment;
-import android.support.v4.view.MenuItemCompat;
 import android.support.v7.app.AppCompatActivity;
-import android.support.v7.widget.ShareActionProvider;
 import android.support.v7.widget.Toolbar;
-import android.util.Base64;
-import android.util.Log;
-import android.view.LayoutInflater;
-import android.view.Menu;
-import android.view.MenuItem;
 import android.view.View;
-import android.view.ViewGroup;
 import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.Toast;
 
-import com.android.volley.RequestQueue;
-import com.android.volley.toolbox.Volley;
 import com.squareup.picasso.Picasso;
 
-import org.json.JSONArray;
-import org.json.JSONException;
-import org.json.JSONObject;
-
-import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
@@ -140,7 +118,7 @@ setTitle(mMovieTitle);
             contentValues.put(MoviesContentProvider.KEY_MOVIE_USER_RATING, mMovieUserRating);
             Uri uri = getContentResolver().insert(MoviesContentProvider.uri, contentValues);
         } else if (imageButton.getTag().equals("R.drawable.favorite_clicked")) {
-            imageButton.setImageResource(R.drawable.ic_action_favourite);
+            imageButton.setImageResource(R.drawable.ic_action_favorite);
             imageButton.setTag("R.drawable.favorite");
             Toast.makeText(this, "Movie unfavorited", Toast.LENGTH_SHORT).show();
             String url = String.valueOf(MoviesContentProvider.uri) + "/" + mMovieId;

@@ -5,14 +5,14 @@
     <item xmlns:app="http://schemas.android.com/apk/res-auto"
         android:id="@+id/action_sort"
         android:icon="@drawable/ic_action_sort"
-        android:title="Sort"
         android:orderInCategory="100"
-        app:showAsAction="always"
-        >
+        android:title="Sort"
+        app:showAsAction="always">
         <menu>
             <group android:checkableBehavior="single">
-                <item android:id="@+id/menuFavorites"
-                    android:title="Favorites"/>
+                <item
+                    android:id="@+id/menuFavorites"
+                    android:title="Favorites" />
                 <item
                     android:id="@+id/menuSortPopularity"
                     android:title="Popular" />

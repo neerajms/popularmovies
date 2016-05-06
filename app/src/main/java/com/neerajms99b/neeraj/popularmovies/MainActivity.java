@@ -3,15 +3,12 @@ package com.neerajms99b.neeraj.popularmovies;
 import android.content.ContentValues;
 import android.content.Context;
 import android.content.Intent;
-import android.content.pm.ActivityInfo;
 import android.graphics.Bitmap;
-import android.graphics.drawable.BitmapDrawable;
 import android.graphics.drawable.Drawable;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
 import android.net.Uri;
 import android.os.Bundle;
-import android.os.Environment;
 import android.support.design.widget.CoordinatorLayout;
 import android.support.design.widget.Snackbar;
 import android.support.v7.app.AppCompatActivity;
@@ -20,7 +17,6 @@ import android.util.Log;
 import android.view.View;
 import android.widget.FrameLayout;
 import android.widget.ImageButton;
-import android.widget.ImageView;
 import android.widget.Toast;
 
 import com.squareup.picasso.Picasso;
@@ -30,7 +26,6 @@ import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
-import java.util.ArrayList;
 
 public class MainActivity extends AppCompatActivity implements MainActivityFragment.OnGridItemSelectedListener {
     private boolean mTwoPane = false;
@@ -217,7 +212,7 @@ public class MainActivity extends AppCompatActivity implements MainActivityFragm
 
             } else if (imageButton.getTag().equals("R.drawable.favorite_clicked")) {
 
-                imageButton.setImageResource(R.drawable.ic_action_favourite);
+                imageButton.setImageResource(R.drawable.ic_action_favorite);
                 imageButton.setTag("R.drawable.favorite");
                 Toast.makeText(this, "Movie removed from Favorites", Toast.LENGTH_SHORT).show();
 

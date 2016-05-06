@@ -1,9 +1,10 @@
 <?xml version="1.0" encoding="utf-8"?>
 
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    android:orientation="vertical" android:layout_width="match_parent"
+    android:id="@+id/reviews_layout"
+    android:layout_width="match_parent"
     android:layout_height="wrap_content"
-    android:id="@+id/reviews_layout">
+    android:orientation="vertical">
 
     <View
         android:layout_width="match_parent"
@@ -12,20 +13,21 @@
         android:background="#eeeeee" />
 
     <TextView
+        android:id="@+id/author_text_view"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:paddingRight="@dimen/padding_16dp"
+        android:gravity="end"
         android:paddingBottom="@dimen/padding_16dp"
-        android:id="@+id/author_text_view"
-        android:textStyle="italic"
+        android:paddingRight="@dimen/padding_16dp"
         android:textSize="16sp"
-        android:gravity="end"/>
+        android:textStyle="italic" />
+
     <TextView
+        android:id="@+id/content_text_view"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
+        android:paddingBottom="@dimen/padding_16dp"
         android:paddingLeft="@dimen/padding_16dp"
-        android:paddingRight="@dimen/padding_16dp"
-        android:id="@+id/content_text_view"
-        android:paddingBottom="@dimen/padding_16dp"/>
+        android:paddingRight="@dimen/padding_16dp" />
 
 </LinearLayout>
