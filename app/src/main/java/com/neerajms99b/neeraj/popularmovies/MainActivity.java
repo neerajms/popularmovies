@@ -29,7 +29,6 @@ import java.io.IOException;
 
 public class MainActivity extends AppCompatActivity implements MainActivityFragment.OnGridItemSelectedListener {
     private boolean mTwoPane = false;
-
     private String mMovieId;
     private String mMovieTitle;
     private String mMoviePosterFullPath;
@@ -38,9 +37,9 @@ public class MainActivity extends AppCompatActivity implements MainActivityFragm
     private String mMoviePlot;
     private String mMovieBackDropPath;
 
-    public static FrameLayout mFrameLayout;
-
     private MovieDetailsParcelable movieDetailsParcelable;
+
+    public static FrameLayout mFrameLayout;
 
     private static boolean last = false;
 
@@ -71,7 +70,7 @@ public class MainActivity extends AppCompatActivity implements MainActivityFragm
             mFrameLayout.setVisibility(View.INVISIBLE);
         }
 
-        if (savedInstanceState != null && savedInstanceState.containsKey("parcel")) {
+        if (savedInstanceState != null && savedInstanceState.containsKey("parcel") && mTwoPane) {
             movieDetailsParcelable = savedInstanceState.getParcelable("parcel");
             mMovieId = movieDetailsParcelable.mMovieId;
             mMovieTitle = movieDetailsParcelable.mMovieTitle;
@@ -86,7 +85,9 @@ public class MainActivity extends AppCompatActivity implements MainActivityFragm
     @Override
     public void onSaveInstanceState(Bundle outState) {
         super.onSaveInstanceState(outState);
-        outState.putParcelable("parcel", movieDetailsParcelable);
+        if (mMovieId != null) {
+            outState.putParcelable("parcel", movieDetailsParcelable);
+        }
     }
 
     @Override
@@ -154,7 +155,6 @@ public class MainActivity extends AppCompatActivity implements MainActivityFragm
         }
         return true;
     }
-
 
     public void favoriteMovie(View view) {
         String posterPath = getFilesDir().getAbsolutePath();
@@ -232,7 +232,7 @@ public class MainActivity extends AppCompatActivity implements MainActivityFragm
                     } else {
                         MainActivityFragment.mGridPosition = 0;
                     }
-                    MainActivityFragment.noNetwork = true;
+                    MainActivityFragment.offline = true;
                     MainActivityFragment.updateGridOffline();
                     MainActivityFragment.mPopMoviesAdapter.notifyDataSetChanged();
                 }

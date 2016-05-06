@@ -23,7 +23,9 @@ public class MoviesContentProvider extends ContentProvider {
     private static final String TABLE_NAME = "movies";
     private static final String URL = "content://" + AUTHORITY + "/" + TABLE_NAME;
     public static Uri uri = Uri.parse(URL);
+
     private SQLiteDatabase database;
+
     public static final String KEY_ID = "_id";
     public static final String KEY_MOVIE_TITLE = "title";
     public static final String KEY_MOVIE_RELEASE_DATE = "releasedate";
@@ -31,6 +33,7 @@ public class MoviesContentProvider extends ContentProvider {
     public static final String KEY_MOVIE_USER_RATING = "rating";
     public static final String KEY_MOVIE_OVERVIEW = "overview";
     public static final String KEY_MOVIE_BACKDROP = "backdrop";
+
     private static final UriMatcher mUriMatcher = new UriMatcher(UriMatcher.NO_MATCH);
 
     static {
@@ -51,6 +54,7 @@ public class MoviesContentProvider extends ContentProvider {
     public Cursor query(Uri uri, String[] projection, String selection, String[] selectionArgs, String sortOrder) {
         SQLiteQueryBuilder qb = new SQLiteQueryBuilder();
         qb.setTables(TABLE_NAME);
+
         switch (mUriMatcher.match(uri)) {
             case 1:
                 if (TextUtils.isEmpty(sortOrder)) sortOrder = "_id ASC";
@@ -63,9 +67,11 @@ public class MoviesContentProvider extends ContentProvider {
             default:
                 throw new IllegalArgumentException("Unknown URI " + uri);
         }
+
         Cursor c = qb.query(database, projection, selection, selectionArgs, null, null, sortOrder);
         Log.d("Query:", String.valueOf(c));
         c.setNotificationUri(getContext().getContentResolver(), uri);
+
         return c;
     }
 
@@ -92,6 +98,7 @@ public class MoviesContentProvider extends ContentProvider {
     @Override
     public int delete(Uri uri, String selection, String[] selectionArgs) {
         int count = 0;
+
         switch (mUriMatcher.match(uri)) {
             case 1:
                 count = database.delete(TABLE_NAME, selection, selectionArgs);

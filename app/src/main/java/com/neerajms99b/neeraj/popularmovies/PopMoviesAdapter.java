@@ -51,8 +51,9 @@ public class PopMoviesAdapter extends ArrayAdapter<MovieDetailsParcelable> {
         } else {
             imageView = (ImageView) convertView;
         }
+
         MovieDetailsParcelable tempMovieObject = MainActivityFragment.getMovieDetailsArrayList().get(position);
-        if (MainActivityFragment.noNetwork) {
+        if (MainActivityFragment.offline) {
             try {
                 File f = new File(tempMovieObject.mMoviePosterFullPath, tempMovieObject.mMovieId + ".png");
                 Bitmap b = BitmapFactory.decodeStream(new FileInputStream(f));

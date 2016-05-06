@@ -12,20 +12,21 @@ public class MoviesOpenHelper extends SQLiteOpenHelper {
     private static final String DATABASE_NAME = "moviedb";
     private static final String MOVIES_TABLE_NAME = "movies";
     private static final String KEY_ID = "_id";
-    private static final String KEY_MOVIE_TITLE= "title";
-    private static final String KEY_MOVIE_RELEASE_DATE ="releasedate";
+    private static final String KEY_MOVIE_TITLE = "title";
+    private static final String KEY_MOVIE_RELEASE_DATE = "releasedate";
     private static final String KEY_MOVIE_POSTER = "poster";
     private static final String KEY_MOVIE_USER_RATING = "rating";
     private static final String KEY_MOVIE_OVERVIEW = "overview";
     private static final String KEY_MOVIE_BACKDROP = "backdrop";
+
     private static final String MOVIES_TABLE_CREATE =
             "CREATE TABLE " + MOVIES_TABLE_NAME + " (" +
                     KEY_ID + " TEXT, " +
                     KEY_MOVIE_TITLE + " TEXT, " +
                     KEY_MOVIE_POSTER + " TEXT, " +
                     KEY_MOVIE_RELEASE_DATE + " TEXT, " +
-                    KEY_MOVIE_USER_RATING + " TEXT, "+
-                    KEY_MOVIE_BACKDROP + " TEXT, "+
+                    KEY_MOVIE_USER_RATING + " TEXT, " +
+                    KEY_MOVIE_BACKDROP + " TEXT, " +
                     KEY_MOVIE_OVERVIEW + " TEXT);";
 
     MoviesOpenHelper(Context context) {

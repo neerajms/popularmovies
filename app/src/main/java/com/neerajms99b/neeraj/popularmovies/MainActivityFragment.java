@@ -1,13 +1,10 @@
 package com.neerajms99b.neeraj.popularmovies;
 
 import android.content.Context;
-import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.pm.ActivityInfo;
 import android.database.Cursor;
-import android.graphics.drawable.Drawable;
 import android.net.Uri;
-import android.os.AsyncTask;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
 import android.os.Bundle;
@@ -19,52 +16,41 @@ import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.AdapterView;
-import android.widget.ArrayAdapter;
-import android.widget.FrameLayout;
 import android.widget.GridView;
-import android.widget.ImageView;
 import android.widget.Toast;
 
-import com.android.volley.Request;
 import com.android.volley.RequestQueue;
-import com.android.volley.Response;
-import com.android.volley.VolleyError;
-import com.android.volley.toolbox.StringRequest;
 import com.android.volley.toolbox.Volley;
-import com.squareup.picasso.Picasso;
 
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
-import java.io.BufferedReader;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.InputStreamReader;
-import java.net.HttpURLConnection;
-import java.net.URL;
 import java.util.ArrayList;
-import java.util.StringTokenizer;
 
 /**
  * A placeholder fragment containing a simple view.
  */
 public class MainActivityFragment extends Fragment {
-    public static PopMoviesAdapter mPopMoviesAdapter = null;
-    public static ArrayList<MovieDetailsParcelable> mMovieDetailsArrayList = null;
+
     private String mFetchMoviesBaseUrl = null;
+    private static boolean emptyDatabase;
+    private final static String mApiKeyParam = "api_key";
+    private final static String mKeyValue = "key goes here";
+    private static MainActivity mCallBack;
+
     public final static String mPopularityTag = "Popularity";
     public final static String mFavoritesTag = "Favorites";
     public final static String mRatingTag = "Rating";
-    public static String mSortCriteria = mPopularityTag;
-    private final static String mApiKeyParam = "api_key";
-    private final static String mKeyValue = "2b34f0a753ed8e38b7546773dbed2720";
-    private static MainActivity mCallBack;
+
     public static boolean mDataSetChanged;
     public static int mGridPosition;
-    public static boolean noNetwork;
+    public static boolean offline;
     public static Context mContext;
-    private static boolean emptyDatabase;
+    public static PopMoviesAdapter mPopMoviesAdapter = null;
+    public static ArrayList<MovieDetailsParcelable> mMovieDetailsArrayList = null;
+    public static String mSortCriteria = mPopularityTag;
+
 
     public MainActivityFragment() {
     }
@@ -126,7 +112,7 @@ public class MainActivityFragment extends Fragment {
         }
 
         if (mMovieDetailsArrayList.isEmpty() && mSortCriteria.equals(mFavoritesTag)) {
-            noNetwork = true;
+            offline = true;
             mMovieDetailsArrayList = new ArrayList<MovieDetailsParcelable>();
             updateGridOffline();
         }
@@ -237,7 +223,7 @@ public class MainActivityFragment extends Fragment {
                     item.setChecked(true);
                     String tempSortCriteria = mSortCriteria;
                     mSortCriteria = mFavoritesTag;
-                    noNetwork = true;
+                    offline = true;
                 } else {
                     Toast.makeText(getContext(), "Looks like you have no favorites yet", Toast.LENGTH_SHORT).show();
                     emptyDatabase = false;
@@ -252,7 +238,7 @@ public class MainActivityFragment extends Fragment {
                 mCallBack.setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_SENSOR);
                 mGridPosition = 0;
                 mSortCriteria = mPopularityTag;
-                noNetwork = false;
+                offline = false;
                 updateMovieGridView();
                 mMovieDetailsArrayList.clear();
                 mPopMoviesAdapter.notifyDataSetChanged();
@@ -265,7 +251,7 @@ public class MainActivityFragment extends Fragment {
                 mGridPosition = 0;
                 mCallBack.setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_SENSOR);
                 mSortCriteria = mRatingTag;
-                noNetwork = false;
+                offline = false;
                 updateMovieGridView();
                 mMovieDetailsArrayList.clear();
                 mPopMoviesAdapter.notifyDataSetChanged();

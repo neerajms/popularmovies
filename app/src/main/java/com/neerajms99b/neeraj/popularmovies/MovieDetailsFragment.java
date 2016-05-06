@@ -50,38 +50,35 @@ public class MovieDetailsFragment extends Fragment {
     private String mMoviePlot;
     private String mMovieTitle;
     private String mMovieBackDropPath;
-    ShareActionProvider mShareActionProvider;
 
-    static String mShareUrl;
+    private static String mShareUrl;
 
-    MovieDetailsParcelable movieDetailsParcelable;
-
-    public MainActivity mCallBack;
+    private MovieDetailsParcelable movieDetailsParcelable;
 
     private ArrayList<String> mTrailersList;
     private String trailerKey;
-    ArrayList<ReviewDetails> mReviewsList;
     private RecyclerView mTrailersRecyclerView;
     private RecyclerView.Adapter mTrailerAdapter;
     private RecyclerView.LayoutManager mTrailersLayoutManager;
 
+    private ArrayList<ReviewDetails> mReviewsList;
     private RecyclerView mReviewsRecyclerView;
     private RecyclerView.Adapter mReviewsAdapter;
     private RecyclerView.LayoutManager mReviewsLayoutManager;
 
-    String mFetchMoviesBaseUrl = "https://api.themoviedb.org/3/movie/";
-    final String mApiKeyParam = "api_key";
-    final String mKeyValue = "2b34f0a753ed8e38b7546773dbed2720";
-    RequestQueue queue;
+    private String mFetchMoviesBaseUrl = "https://api.themoviedb.org/3/movie/";
+    private final String mApiKeyParam = "api_key";
+    private final String mKeyValue = "2b34f0a753ed8e38b7546773dbed2720";
+    private RequestQueue queue;
 
-    final static String mKeyTrailerList = "trailer_list";
-    final static String mKeyMovieId = "movie_id";
-    final static String mKeyMoviePosterPath = "movie_poster_full_path";
-    final static String mKeyMovieUserRating = "movie_user_rating";
-    final static String mKeyMovieReleaseDate = "movie_release_date";
-    final static String mKeyMoviePlot = "movie_plot";
-    final static String mKeyMovieTitle = "movie_title";
-    final static String mKeyMovieBackDropPath = "movie_back_drop_path";
+    private final static String mKeyTrailerList = "trailer_list";
+    private final static String mKeyMovieId = "movie_id";
+    private final static String mKeyMoviePosterPath = "movie_poster_full_path";
+    private final static String mKeyMovieUserRating = "movie_user_rating";
+    private final static String mKeyMovieReleaseDate = "movie_release_date";
+    private final static String mKeyMoviePlot = "movie_plot";
+    private final static String mKeyMovieTitle = "movie_title";
+    private final static String mKeyMovieBackDropPath = "movie_back_drop_path";
 
     public MovieDetailsFragment() {
     }
@@ -94,7 +91,9 @@ public class MovieDetailsFragment extends Fragment {
             String movieReleaseDate,
             String moviePlot,
             String movieBackDropPath) {
+
         MovieDetailsFragment fragment = new MovieDetailsFragment();
+
         Bundle args = new Bundle();
         args.putString(mKeyMovieId, movieId);
         args.putString(mKeyMovieTitle, movieTitle);
@@ -104,6 +103,7 @@ public class MovieDetailsFragment extends Fragment {
         args.putString(mKeyMoviePlot, moviePlot);
         args.putString(mKeyMovieBackDropPath, movieBackDropPath);
         fragment.setArguments(args);
+
         return fragment;
     }
 
@@ -119,6 +119,7 @@ public class MovieDetailsFragment extends Fragment {
             mMovieReleaseDate = movieDetailsParcelable.mMovieReleaseDate;
             mMovieUserRating = movieDetailsParcelable.mMovieUserRating;
             mMovieBackDropPath = movieDetailsParcelable.mMovieBackDropPath;
+
         } else if (getArguments() != null) {
             trailerKey = this.getArguments().getString(mKeyTrailerList);
             mMovieId = this.getArguments().getString(mKeyMovieId);
@@ -152,14 +153,15 @@ public class MovieDetailsFragment extends Fragment {
         outState.putParcelable("parcel", movieDetailsParcelable);
     }
 
-
     @Override
     public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {
         inflater.inflate(R.menu.menu_movie_details, menu);
+
         SharedPreferences sharedPref = getActivity().getSharedPreferences(
                 "trailerShared", Context.MODE_PRIVATE);
         trailerKey = sharedPref.getString(mMovieId, "trailerkey");
         mShareUrl = "http://www.youtube.com/watch?v=" + trailerKey;
+
         MenuItem menuItem = menu.findItem(R.id.action_share);
         ShareActionProvider mShareActionProvider = (ShareActionProvider) MenuItemCompat.getActionProvider(menuItem);
         if (mShareActionProvider != null) {
@@ -167,6 +169,7 @@ public class MovieDetailsFragment extends Fragment {
         } else {
             Log.e("Error", "Intent not found");
         }
+
         super.onCreateOptionsMenu(menu, inflater);
     }
 
@@ -185,14 +188,13 @@ public class MovieDetailsFragment extends Fragment {
                 .appendQueryParameter(mApiKeyParam, mKeyValue)
                 .build();
         String url = builtUri.toString();
+
         queue = Volley.newRequestQueue(getActivity());
         FetchDataTask fetchMoviesTask = new FetchDataTask();
         VolleyCallBack volleyCallBack = new VolleyCallBack() {
             @Override
             public void returnResponse(String result) {
-
                 getTrailersFromJson(result);
-
             }
         };
         fetchMoviesTask.executeThread(url, queue, volleyCallBack);
@@ -307,7 +309,7 @@ public class MovieDetailsFragment extends Fragment {
 
         final ImageView moviePosterImage = (ImageView) rootView.findViewById(R.id.movie_poster_image_view);
 
-        if (MainActivityFragment.noNetwork) {
+        if (MainActivityFragment.offline) {
             try {
                 File f = new File(mMoviePosterPath, mMovieId + ".png");
                 Bitmap b = BitmapFactory.decodeStream(new FileInputStream(f));

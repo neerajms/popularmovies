@@ -15,8 +15,8 @@ import org.json.JSONException;
  * Created by neeraj on 30/4/16.
  */
 public class FetchDataTask {
-    public void executeThread(String url, RequestQueue queue, final VolleyCallBack callBack){
 
+    public void executeThread(String url, RequestQueue queue, final VolleyCallBack callBack) {
         StringRequest stringRequest = new StringRequest(Request.Method.GET, url,
                 new Response.Listener<String>() {
                     @Override

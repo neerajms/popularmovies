@@ -8,13 +8,13 @@ import android.os.Parcelable;
  * Created by neeraj on 29/4/16.
  */
 public class MovieDetailsParcelable implements Parcelable {
-    String mMovieId;
-    String mMovieTitle;
-    String mMoviePosterFullPath;
-    String mMovieUserRating;
-    String mMovieReleaseDate;
-    String mMoviePlot;
-    String mMovieBackDropPath;
+    public String mMovieId;
+    public String mMovieTitle;
+    public String mMoviePosterFullPath;
+    public String mMovieUserRating;
+    public String mMovieReleaseDate;
+    public String mMoviePlot;
+    public String mMovieBackDropPath;
 
     public MovieDetailsParcelable(String movieId,
                                   String movieTitle,
@@ -23,7 +23,7 @@ public class MovieDetailsParcelable implements Parcelable {
                                   String movieReleaseDate,
                                   String moviePlot,
                                   String movieBackDropPath) {
-        this.mMovieId=movieId;
+        this.mMovieId = movieId;
         this.mMovieTitle = movieTitle;
         this.mMoviePosterFullPath = moviePosterFullPath;
         this.mMovieUserRating = movieUserRating;
@@ -63,6 +63,7 @@ public class MovieDetailsParcelable implements Parcelable {
         public MovieDetailsParcelable createFromParcel(Parcel in) {
             return new MovieDetailsParcelable(in);
         }
+
         public MovieDetailsParcelable[] newArray(int size) {
             return new MovieDetailsParcelable[size];
         }

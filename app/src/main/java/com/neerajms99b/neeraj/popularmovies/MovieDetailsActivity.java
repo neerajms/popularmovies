@@ -9,6 +9,7 @@ import android.net.Uri;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
+import android.util.Log;
 import android.view.View;
 import android.widget.ImageButton;
 import android.widget.ImageView;
@@ -21,7 +22,6 @@ import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
-import java.util.ArrayList;
 
 public class MovieDetailsActivity extends AppCompatActivity {
 
@@ -35,11 +35,6 @@ public class MovieDetailsActivity extends AppCompatActivity {
     private static String posterPath;
     private static String backDropPath;
     private boolean dataSetChanged;
-    private ArrayList<String> mTrailersList;
-    String mFetchMoviesBaseUrl = "https://api.themoviedb.org/3/movie/";
-    final String mApiKeyParam = "api_key";
-    final String mKeyValue = "2b34f0a753ed8e38b7546773dbed2720";
-    String mTrailerKey;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -49,7 +44,6 @@ public class MovieDetailsActivity extends AppCompatActivity {
         setSupportActionBar(toolbar);
 
         Intent intent = getIntent();
-        mTrailerKey = intent.getExtras().getString("trailer");
         mMovieId = intent.getExtras().getString("movieId");
         mMovieTitle = intent.getExtras().getString("movieTitle");
         mMoviePosterPath = intent.getExtras().getString("moviePosterFullPath");
@@ -57,9 +51,9 @@ public class MovieDetailsActivity extends AppCompatActivity {
         mMovieReleaseDate = intent.getExtras().getString("movieReleaseDate");
         mMoviePlot = intent.getExtras().getString("moviePlot");
         mMovieBackDropPath = intent.getExtras().getString("movieBackDropPath");
-        mTrailersList = new ArrayList<String>();
+
         ImageView imageView = (ImageView) findViewById(R.id.back_drop_image);
-        if (MainActivityFragment.noNetwork) {
+        if (MainActivityFragment.offline) {
             try {
                 File f = new File(mMovieBackDropPath, mMovieId + "back.png");
                 Bitmap b = BitmapFactory.decodeStream(new FileInputStream(f));
@@ -69,9 +63,13 @@ public class MovieDetailsActivity extends AppCompatActivity {
                 e.printStackTrace();
             }
         } else {
-            Picasso.with(this).load(mMovieBackDropPath).placeholder(R.drawable.placeholder_loading).into(imageView);
+            Picasso.with(this)
+                    .load(mMovieBackDropPath)
+                    .placeholder(R.drawable.placeholder_loading)
+                    .into(imageView);
         }
-setTitle(mMovieTitle);
+        setTitle(mMovieTitle);
+
         if (savedInstanceState == null) {
             getSupportFragmentManager().beginTransaction()
                     .replace(R.id.movie_detail_container,
@@ -90,11 +88,14 @@ setTitle(mMovieTitle);
     public void favoriteMovie(View view) {
         posterPath = getFilesDir().getAbsolutePath();
         backDropPath = getFilesDir().getAbsolutePath();
+
         ImageButton imageButton = (ImageButton) findViewById(R.id.favorite_button);
+
         if (imageButton.getTag().equals("R.drawable.favorite")) {
             imageButton.setImageResource(R.drawable.ic_action_favorite_clicked);
             imageButton.setTag("R.drawable.favorite_clicked");
-            Toast.makeText(this, "Movie favorited", Toast.LENGTH_SHORT).show();
+            Toast.makeText(this, "Movie added to Favorites", Toast.LENGTH_SHORT).show();
+
             MainActivityFragment.mDataSetChanged = false;
 
             ImageView posterImageView = (ImageView) findViewById(R.id.movie_poster_image_view);
@@ -120,16 +121,17 @@ setTitle(mMovieTitle);
         } else if (imageButton.getTag().equals("R.drawable.favorite_clicked")) {
             imageButton.setImageResource(R.drawable.ic_action_favorite);
             imageButton.setTag("R.drawable.favorite");
-            Toast.makeText(this, "Movie unfavorited", Toast.LENGTH_SHORT).show();
+            Toast.makeText(this, "Movie removed from Favorites", Toast.LENGTH_SHORT).show();
+
             String url = String.valueOf(MoviesContentProvider.uri) + "/" + mMovieId;
             Uri queryUri = Uri.parse(url);
             int i = getContentResolver().delete(queryUri, null, null);
             if (i > 0) {
                 MainActivityFragment.mDataSetChanged = true;
-                File posterFile = new File(posterPath, mMovieId + ".png");
-                boolean deletedPoster = posterFile.delete();
-                File backDropFile = new File(backDropPath, mMovieId + "back.png");
-                boolean deletedBackDrop = backDropFile.delete();
+//                File posterFile = new File(posterPath, mMovieId + ".png");
+//                boolean deletedPoster = posterFile.delete();
+//                File backDropFile = new File(backDropPath, mMovieId + "back.png");
+//                boolean deletedBackDrop = backDropFile.delete();
             }
         }
     }
