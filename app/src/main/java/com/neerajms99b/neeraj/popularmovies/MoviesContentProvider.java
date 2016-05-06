@@ -19,36 +19,31 @@ import android.util.Log;
  * Created by neeraj on 2/5/16.
  */
 public class MoviesContentProvider extends ContentProvider {
-
     private static final String AUTHORITY = "com.neerajms99b.neeraj.popularmovies";
     private static final String TABLE_NAME = "movies";
-    private static final String URL = "content://"+AUTHORITY+"/"+TABLE_NAME;
+    private static final String URL = "content://" + AUTHORITY + "/" + TABLE_NAME;
     public static Uri uri = Uri.parse(URL);
     private SQLiteDatabase database;
     public static final String KEY_ID = "_id";
-    public static final String KEY_MOVIE_TITLE= "title";
-    public static final String KEY_MOVIE_RELEASE_DATE ="releasedate";
+    public static final String KEY_MOVIE_TITLE = "title";
+    public static final String KEY_MOVIE_RELEASE_DATE = "releasedate";
     public static final String KEY_MOVIE_POSTER = "poster";
     public static final String KEY_MOVIE_USER_RATING = "rating";
     public static final String KEY_MOVIE_OVERVIEW = "overview";
     public static final String KEY_MOVIE_BACKDROP = "backdrop";
     private static final UriMatcher mUriMatcher = new UriMatcher(UriMatcher.NO_MATCH);
+
     static {
-        mUriMatcher.addURI(AUTHORITY,TABLE_NAME,1);
-        mUriMatcher.addURI(AUTHORITY,TABLE_NAME+"/#",2);
+        mUriMatcher.addURI(AUTHORITY, TABLE_NAME, 1);
+        mUriMatcher.addURI(AUTHORITY, TABLE_NAME + "/#", 2);
     }
 
     @Override
     public boolean onCreate() {
         Context context = getContext();
         MoviesOpenHelper dbHelper = new MoviesOpenHelper(context);
-
-        /**
-         * Create a write able database which will trigger its
-         * creation if it doesn't already exist.
-         */
         database = dbHelper.getWritableDatabase();
-        return (database != null)? true:false;
+        return (database != null) ? true : false;
     }
 
     @Nullable
@@ -57,39 +52,19 @@ public class MoviesContentProvider extends ContentProvider {
         SQLiteQueryBuilder qb = new SQLiteQueryBuilder();
         qb.setTables(TABLE_NAME);
         switch (mUriMatcher.match(uri)) {
-
-
-            // If the incoming URI was for all of table3
             case 1:
-
                 if (TextUtils.isEmpty(sortOrder)) sortOrder = "_id ASC";
                 break;
-
-            // If the incoming URI was for a single row
             case 2:
-
-                /*
-                 * Because this URI was for a single row, the _ID value part is
-                 * present. Get the last path segment from the URI; this is the _ID value.
-                 * Then, append the value to the WHERE clause for the query
-                 */
-                selection = "_id="+ uri.getLastPathSegment();
-                Log.d("SELECTION:",selection);
+                selection = "_id=" + uri.getLastPathSegment();
+                Log.d("SELECTION:", selection);
                 break;
 
             default:
                 throw new IllegalArgumentException("Unknown URI " + uri);
-
-                // If the URI is not recognized, you should do some error handling here.
         }
-        // call the code to actually do the query
-        Cursor c = qb.query(database,	projection,	selection, selectionArgs,null, null, sortOrder);
-
-        /**
-         * register to watch a content URI for changes
-         */
-
-        Log.d("Query:",String.valueOf(c));
+        Cursor c = qb.query(database, projection, selection, selectionArgs, null, null, sortOrder);
+        Log.d("Query:", String.valueOf(c));
         c.setNotificationUri(getContext().getContentResolver(), uri);
         return c;
     }
@@ -104,42 +79,31 @@ public class MoviesContentProvider extends ContentProvider {
     @Override
     public Uri insert(Uri uri, ContentValues contentValues) {
         ContentValues cv = contentValues;
-        long rowID = database.insert(TABLE_NAME,null, contentValues);
-
-        /**
-         * If record is added successfully
-         */
-
-        if (rowID > 0)
-        {
-            String _uri = String.valueOf(uri)+"/"+String.valueOf(cv.get(KEY_ID));
+        long rowID = database.insert(TABLE_NAME, null, contentValues);
+        if (rowID > 0) {
+            String _uri = String.valueOf(uri) + "/" + String.valueOf(cv.get(KEY_ID));
             Uri tempUri = Uri.parse(_uri);
             getContext().getContentResolver().notifyChange(tempUri, null);
             return tempUri;
         }
         throw new SQLException("Failed to add a record into " + uri);
-
     }
 
     @Override
     public int delete(Uri uri, String selection, String[] selectionArgs) {
         int count = 0;
-
-        switch (mUriMatcher.match(uri)){
+        switch (mUriMatcher.match(uri)) {
             case 1:
                 count = database.delete(TABLE_NAME, selection, selectionArgs);
                 break;
-
             case 2:
                 String id = uri.getPathSegments().get(1);
-                count = database.delete( TABLE_NAME,  "_id = " + id +
+                count = database.delete(TABLE_NAME, "_id = " + id +
                         (!TextUtils.isEmpty(selection) ? " AND (" + selection + ')' : ""), selectionArgs);
                 break;
-
             default:
                 throw new IllegalArgumentException("Unknown URI " + uri);
         }
-
         getContext().getContentResolver().notifyChange(uri, null);
         return count;
     }

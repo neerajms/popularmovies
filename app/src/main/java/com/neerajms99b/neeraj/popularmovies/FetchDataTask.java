@@ -15,11 +15,8 @@ import org.json.JSONException;
  * Created by neeraj on 30/4/16.
  */
 public class FetchDataTask {
-//    private String returnResult;
     public void executeThread(String url, RequestQueue queue, final VolleyCallBack callBack){
 
-
-// Request a string response from the provided URL.
         StringRequest stringRequest = new StringRequest(Request.Method.GET, url,
                 new Response.Listener<String>() {
                     @Override
@@ -32,9 +29,7 @@ public class FetchDataTask {
 
             }
         });
-// Add the request to the RequestQueue.
         queue.add(stringRequest);
-//        return returnResult;
     }
 }
 

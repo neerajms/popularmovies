@@ -3,6 +3,7 @@ package com.neerajms99b.neeraj.popularmovies;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.content.pm.ActivityInfo;
 import android.database.Cursor;
 import android.graphics.drawable.Drawable;
 import android.net.Uri;
@@ -19,6 +20,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
+import android.widget.FrameLayout;
 import android.widget.GridView;
 import android.widget.ImageView;
 import android.widget.Toast;
@@ -45,41 +47,31 @@ import java.util.ArrayList;
 import java.util.StringTokenizer;
 
 /**
- * public class PopMoviesAdapter {
- * }
  * A placeholder fragment containing a simple view.
  */
 public class MainActivityFragment extends Fragment {
-    static PopMoviesAdapter mPopMoviesAdapter = null;
-    static ArrayList<MovieDetailsParcelable> mMovieDetailsArrayList = null;
-    String mFetchMoviesBaseUrl = null;
-    final static String mPopularityTag = "Popularity";
-    final static String mFavoritesTag = "Favorites";
-    final static String mRatingTag = "Rating";
+    public static PopMoviesAdapter mPopMoviesAdapter = null;
+    public static ArrayList<MovieDetailsParcelable> mMovieDetailsArrayList = null;
+    private String mFetchMoviesBaseUrl = null;
+    public final static String mPopularityTag = "Popularity";
+    public final static String mFavoritesTag = "Favorites";
+    public final static String mRatingTag = "Rating";
     public static String mSortCriteria = mPopularityTag;
-    final static String mApiKeyParam = "api_key";
-    final static String mKeyValue = "2b34f0a753ed8e38b7546773dbed2720";
-    static MainActivity mCallBack;
-    static String[] trailerKeyList;
-    boolean twoPane;
+    private final static String mApiKeyParam = "api_key";
+    private final static String mKeyValue = "2b34f0a753ed8e38b7546773dbed2720";
+    private static MainActivity mCallBack;
     public static boolean mDataSetChanged;
-    static int mGridPosition;
+    public static int mGridPosition;
     public static boolean noNetwork;
-    Bundle mSavedInstanceState;
     public static Context mContext;
-    static int movieIndex = 0;
-    static boolean emptyDatabase;
-//    private static Context mContext;
-//    MovieDetailsParcelable[] movieDetailsParcelables;
+    private static boolean emptyDatabase;
 
     public MainActivityFragment() {
     }
 
-
     public static ArrayList<MovieDetailsParcelable> getMovieDetailsArrayList() {
         return mMovieDetailsArrayList;
     }
-
 
     @Override
     public void onCreate(@Nullable Bundle savedInstanceState) {
@@ -88,10 +80,8 @@ public class MainActivityFragment extends Fragment {
         if (savedInstanceState != null) {
             mSortCriteria = savedInstanceState.getString("sortcriteria");
             mGridPosition = savedInstanceState.getInt("gridposition");
-//            movieDetailsParcelables = (MovieDetailsParcelable[]) savedInstanceState.getParcelableArray("parcel");
             mMovieDetailsArrayList = savedInstanceState.getParcelableArrayList("parcel");
         }
-//        trailerKeyList = new ArrayList<String>();
         setHasOptionsMenu(true);
     }
 
@@ -123,32 +113,30 @@ public class MainActivityFragment extends Fragment {
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
         View rootView = inflater.inflate(R.layout.fragment_main, container, false);
+
         mCallBack = (MainActivity) getActivity();
-        mSavedInstanceState = savedInstanceState;
+        mContext = getContext();
+
         GridView moviesGridView = (GridView) rootView.findViewById(R.id.main_grid_view);
         mPopMoviesAdapter = new PopMoviesAdapter(getActivity());
-        mContext = getContext();
+
         if (savedInstanceState == null) {
             mMovieDetailsArrayList = new ArrayList<MovieDetailsParcelable>();
-
             updateMovieGridView();
-
         }
+
         if (mMovieDetailsArrayList.isEmpty() && mSortCriteria.equals(mFavoritesTag)) {
             noNetwork = true;
             mMovieDetailsArrayList = new ArrayList<MovieDetailsParcelable>();
             updateGridOffline();
-//            for(int i = 0 ; i<mMovieDetailsArrayList.size();i++){
-//                fetchTrailers(mMovieDetailsArrayList.get(i).mMovieId,i);
-//            }
         }
+
         moviesGridView.setAdapter(mPopMoviesAdapter);
         moviesGridView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             public void onItemClick(AdapterView<?> parent, View v,
                                     int position, long id) {
                 mGridPosition = position;
                 MovieDetailsParcelable tempObj = mMovieDetailsArrayList.get(position);
-//                fetchTrailers(tempObj.mMovieId);
                 mCallBack.onMovieSelected(
                         tempObj.mMovieId,
                         tempObj.mMovieTitle,
@@ -164,7 +152,6 @@ public class MainActivityFragment extends Fragment {
     }
 
     public static void fetchTrailers(final String movieId) {
-//        MovieDetailsParcelable tempObj = mMovieDetailsArrayList.get(position);
         String fetchTrailersUrl = "https://api.themoviedb.org/3/movie/" + movieId + "/" + "videos";
         Uri builtUri = Uri.parse(fetchTrailersUrl)
                 .buildUpon()
@@ -177,47 +164,29 @@ public class MainActivityFragment extends Fragment {
         VolleyCallBack volleyCallBack = new VolleyCallBack() {
             @Override
             public void returnResponse(String result) {
-
-                getTrailersFromJson(movieId,result);
-
+                getTrailersFromJson(movieId, result);
             }
         };
         fetchMoviesTask.executeThread(url, queue, volleyCallBack);
     }
 
-    public static void getTrailersFromJson(String movieId,String jsonResult) {
+    public static void getTrailersFromJson(String movieId, String jsonResult) {
         String trailerKey = null;
-
         final String TMDB_RESULTS = "results";
         final String TMDB_TRAILER_KEY = "key";
         try {
             JSONObject trailersJsonObject = new JSONObject(jsonResult);
             JSONArray trailersArray = trailersJsonObject.getJSONArray(TMDB_RESULTS);
-//            mTrailersList.clear();
-//            for (int i = 0; i < trailersArray.length(); i++) {
             trailerKey = trailersArray.getJSONObject(0).getString(TMDB_TRAILER_KEY);
-//            trailerKeyList[position] = trailerKey;
-////            movieIndex++;
-//            Log.d("TrailerKey MainAcFrag::",trailerKey);
+
             SharedPreferences sharedPref = mContext.getSharedPreferences(
                     "trailerShared", Context.MODE_PRIVATE);
             SharedPreferences.Editor editor = sharedPref.edit();
-//            editor.clear();
             editor.putString(movieId, trailerKey);
             editor.commit();
-//            }
-
-//            mTrailerAdapter.notifyDataSetChanged();
-
         } catch (JSONException je) {
-
+            Log.d("Error:", "Could not extract trailers from JSON");
         }
-//        if(!mTrailersList.isEmpty()){
-//            mShareUrl = "http://www.youtube.com/watch?v=" + mTrailersList.get(0);
-//        }else {
-//            mShareUrl = "Not found";
-//        }
-
     }
 
     @Override
@@ -257,39 +226,46 @@ public class MainActivityFragment extends Fragment {
         int id = item.getItemId();
         switch (id) {
             case R.id.menuFavorites:
-                int tempGridPosition = mGridPosition;
-//                mGridPosition = 0;
+                if (mCallBack.isTwoPane()) {
+                    MainActivity.mFrameLayout.setVisibility(View.VISIBLE);
+                }
+                int tempGridPosition;
+                tempGridPosition = mGridPosition;
+                mGridPosition = 0;
                 updateGridOffline();
                 if (!emptyDatabase) {
                     item.setChecked(true);
                     String tempSortCriteria = mSortCriteria;
                     mSortCriteria = mFavoritesTag;
                     noNetwork = true;
-
                 } else {
-                    Toast.makeText(getContext(), "Nothing to show in Favorites", Toast.LENGTH_SHORT).show();
-                    mGridPosition = tempGridPosition;
+                    Toast.makeText(getContext(), "Looks like you have no favorites yet", Toast.LENGTH_SHORT).show();
                     emptyDatabase = false;
+                    mGridPosition = tempGridPosition;
                 }
-//                mMovieDetailsArrayList.clear();
-//                mPopMoviesAdapter.notifyDataSetChanged();
                 return true;
             case R.id.menuSortPopularity:
+                if (mCallBack.isTwoPane()) {
+                    MainActivity.mFrameLayout.setVisibility(View.VISIBLE);
+                }
                 item.setChecked(true);
+                mCallBack.setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_SENSOR);
+                mGridPosition = 0;
                 mSortCriteria = mPopularityTag;
-//                mGridPosition = 0;
                 noNetwork = false;
-
                 updateMovieGridView();
                 mMovieDetailsArrayList.clear();
                 mPopMoviesAdapter.notifyDataSetChanged();
                 return true;
             case R.id.menuSortRating:
                 item.setChecked(true);
+                if (mCallBack.isTwoPane()) {
+                    MainActivity.mFrameLayout.setVisibility(View.VISIBLE);
+                }
+                mGridPosition = 0;
+                mCallBack.setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_SENSOR);
                 mSortCriteria = mRatingTag;
-//                mGridPosition = 0;
                 noNetwork = false;
-
                 updateMovieGridView();
                 mMovieDetailsArrayList.clear();
                 mPopMoviesAdapter.notifyDataSetChanged();
@@ -300,22 +276,8 @@ public class MainActivityFragment extends Fragment {
     }
 
     public static void updateGridOffline() {
-//        noNetwork = true;
-
-
-//        if (mGridPosition > 1) {
-//            mGridPosition = mGridPosition - 1;
-//        } else {
-//            mGridPosition = 0;
-//        }
-//        if(mCallBack.isTwoPane() && mGridPosition == 0){
-//
-//        }
-
-//        Log.d("URI URI:",String.valueOf(MoviesContentProvider.uri));
         Cursor c = mContext.getContentResolver().query(MoviesContentProvider.uri,
                 null, null, null, null);
-//        Log.d("TITLE OFFLINE:",c.getString(c.getColumnIndex(MoviesContentProvider.KEY_MOVIE_TITLE)));
         String movieId,
                 movieTitle,
                 moviePosterPath,
@@ -327,19 +289,16 @@ public class MainActivityFragment extends Fragment {
         if (c.moveToFirst()) {
             emptyDatabase = false;
             mMovieDetailsArrayList.clear();
-
             mPopMoviesAdapter.notifyDataSetChanged();
+
             do {
                 movieId = c.getString(c.getColumnIndex(MoviesContentProvider.KEY_ID));
-//                fetchTrailers(movieId,index);
-
                 movieTitle = c.getString(c.getColumnIndex(MoviesContentProvider.KEY_MOVIE_TITLE));
                 moviePosterPath = c.getString(c.getColumnIndex(MoviesContentProvider.KEY_MOVIE_POSTER));
                 movieBackdropPath = c.getString(c.getColumnIndex(MoviesContentProvider.KEY_MOVIE_BACKDROP));
                 moviePlot = c.getString(c.getColumnIndex(MoviesContentProvider.KEY_MOVIE_OVERVIEW));
                 movieReleaseDate = c.getString(c.getColumnIndex(MoviesContentProvider.KEY_MOVIE_RELEASE_DATE));
                 movieUserRating = c.getString(c.getColumnIndex(MoviesContentProvider.KEY_MOVIE_USER_RATING));
-//                Log.d("Title offline:",movieTitle);
                 MovieDetailsParcelable movie = new MovieDetailsParcelable(movieId,
                         movieTitle,
                         moviePosterPath,
@@ -353,20 +312,15 @@ public class MainActivityFragment extends Fragment {
         } else {
             emptyDatabase = true;
         }
-
     }
 
     public void updateMovieGridView() {
-
         if (mSortCriteria.equals(mPopularityTag)) {
             mFetchMoviesBaseUrl = "https://api.themoviedb.org/3/movie/popular?";
         } else if (mSortCriteria.equals(mRatingTag)) {
             mFetchMoviesBaseUrl = "https://api.themoviedb.org/3/movie/top_rated?";
         }
-//            mFetchMoviesBaseUrl = null;
 
-
-        // Instantiate the RequestQueue.
         Uri builtUri = Uri.parse(mFetchMoviesBaseUrl)
                 .buildUpon()
                 .appendQueryParameter(mApiKeyParam, mKeyValue)
@@ -380,38 +334,22 @@ public class MainActivityFragment extends Fragment {
                 try {
                     getMoviesDataFromJson(result);
                     onPostExecute();
-//                    if (mCallBack.isTwoPane()) {
-//                        fetchTrailers(mMovieDetailsArrayList.get(0).mMovieId);
-//                    }
                 } catch (JSONException je) {
 
                 }
             }
         };
         fetchMoviesTask.executeThread(url, queue, volleyCallBack);
-
-
-//        FetchMoviesTask movieDetails = new FetchMoviesTask();
-//        movieDetails.execute();
     }
 
     protected static void onPostExecute() {
-
         if (!mMovieDetailsArrayList.isEmpty()) {
             for (int i = 0; i < mMovieDetailsArrayList.size(); ++i) {
                 mPopMoviesAdapter.add(mMovieDetailsArrayList.get(i));
-//                    movieDetailsParcelables[i] = new MovieDetailsParcelable(mMovieDetailsArrayList.get(i).mStrMovieTitle,
-//                            mMovieDetailsArrayList.get(i).mStrMoviePosterFullPath,
-//                            mMovieDetailsArrayList.get(i).mStrMovieUserRating,
-//                            mMovieDetailsArrayList.get(i).mStrMovieReleaseDate,
-//                            mMovieDetailsArrayList.get(i).mStrMoviePlot,
-//                            mMovieDetailsArrayList.get(i).mStrMovieBackDropPath);
-//                Log.d("id", mMovieDetailsArrayList.get(i).mMovieId);
             }
-
-
             mPopMoviesAdapter.notifyDataSetChanged();
-            if (mCallBack.isTwoPane() && mSortCriteria.equals(mFavoritesTag)) {//&& !MainActivityFragment.noNetwork
+
+            if (mCallBack.isTwoPane()) {//&& mSortCriteria.equals(mFavoritesTag)
                 MovieDetailsParcelable tempObj = mMovieDetailsArrayList.get(mGridPosition);
                 fetchTrailers(tempObj.mMovieId);
                 mCallBack.onMovieSelected(
@@ -451,10 +389,7 @@ public class MainActivityFragment extends Fragment {
         JSONArray moviesArray = moviesJson.getJSONArray(TMDB_RESULTS);
         mMovieDetailsArrayList.clear();
 
-        trailerKeyList = new String[moviesArray.length()];
-
         for (int i = 0; i < moviesArray.length(); i++) {
-
             JSONObject singleMovieDetails = moviesArray.getJSONObject(i);
             movieId = singleMovieDetails.getString(TMDB_MOVIE_ID);
             fetchTrailers(movieId);
@@ -472,11 +407,7 @@ public class MainActivityFragment extends Fragment {
                     moviePlot,
                     movieBackdropPath);
             mMovieDetailsArrayList.add(movie);
-
-//            Log.d("MovieTitle:", mMovieDetailsArrayList.get(i).mMovieTitle);
-
         }
-
         return mMovieDetailsArrayList;
     }
 }

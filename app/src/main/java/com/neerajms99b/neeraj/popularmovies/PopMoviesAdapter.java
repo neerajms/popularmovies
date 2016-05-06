@@ -52,27 +52,19 @@ public class PopMoviesAdapter extends ArrayAdapter<MovieDetailsParcelable> {
             imageView = (ImageView) convertView;
         }
         MovieDetailsParcelable tempMovieObject = MainActivityFragment.getMovieDetailsArrayList().get(position);
-        if(MainActivityFragment.noNetwork){
-            FileInputStream inputStream;
+        if (MainActivityFragment.noNetwork) {
             try {
-                File f=new File(tempMovieObject.mMoviePosterFullPath, tempMovieObject.mMovieId+".png");
+                File f = new File(tempMovieObject.mMoviePosterFullPath, tempMovieObject.mMovieId + ".png");
                 Bitmap b = BitmapFactory.decodeStream(new FileInputStream(f));
-//                ImageView img=(ImageView)findViewById(R.id.temp_image);
-//                img.setImageBitmap(b);
                 imageView.setImageBitmap(b);
-
-            }
-            catch (FileNotFoundException e)
-            {
+            } catch (FileNotFoundException e) {
                 e.printStackTrace();
             }
-
-        }else {
+        } else {
             Picasso.with(mContext)
                     .load(tempMovieObject.mMoviePosterFullPath)
                     .placeholder(R.drawable.placeholder_loading)
                     .into(imageView);
-
         }
         return imageView;
     }

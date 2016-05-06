@@ -31,15 +31,6 @@
                 android:name="android.support.PARENT_ACTIVITY"
                 android:value="com.neerajms99b.neeraj.popularmovies.MainActivity" />
         </activity>
-        <activity
-            android:name=".ReviewDisplayActivity"
-            android:label="@string/title_activity_review_display"
-            android:parentActivityName=".MovieDetailsActivity"
-            android:theme="@style/Theme.AppCompat.Light.NoActionBar">
-            <meta-data
-                android:name="android.support.PARENT_ACTIVITY"
-                android:value="com.neerajms99b.neeraj.popularmovies.MovieDetailsActivity" />
-        </activity>
 
         <provider
             android:name=".MoviesContentProvider"

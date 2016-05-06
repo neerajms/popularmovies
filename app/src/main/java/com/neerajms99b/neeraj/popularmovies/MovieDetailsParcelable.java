@@ -63,7 +63,6 @@ public class MovieDetailsParcelable implements Parcelable {
         public MovieDetailsParcelable createFromParcel(Parcel in) {
             return new MovieDetailsParcelable(in);
         }
-
         public MovieDetailsParcelable[] newArray(int size) {
             return new MovieDetailsParcelable[size];
         }
