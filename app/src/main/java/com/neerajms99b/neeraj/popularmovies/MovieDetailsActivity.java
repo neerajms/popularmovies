@@ -93,7 +93,7 @@ public class MovieDetailsActivity extends AppCompatActivity {
 
         if (imageButton.getTag().equals("R.drawable.favorite")) {
             MainActivity.postersToBeDeleted.clear();
-            
+
             imageButton.setImageResource(R.drawable.ic_action_favorite_clicked);
             imageButton.setTag("R.drawable.favorite_clicked");
             Toast.makeText(this, "Movie added to Favorites", Toast.LENGTH_SHORT).show();
