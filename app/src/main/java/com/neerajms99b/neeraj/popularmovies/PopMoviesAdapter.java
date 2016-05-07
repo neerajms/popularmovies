@@ -41,11 +41,16 @@ public class PopMoviesAdapter extends ArrayAdapter<MovieDetailsParcelable> {
         ImageView imageView;
 
         if (convertView == null) {
+            float density = getContext().getResources().getDisplayMetrics().density;
             imageView = new ImageView(mContext);
             if (new MainActivity().isTwoPane()) {
-                imageView.setLayoutParams(new GridView.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, 100));
+                imageView.setLayoutParams(
+                        new GridView.LayoutParams(
+                                ViewGroup.LayoutParams.MATCH_PARENT, 50 * (int) density));
             } else {
-                imageView.setLayoutParams(new GridView.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, 600));
+                imageView.setLayoutParams(
+                        new GridView.LayoutParams(
+                                ViewGroup.LayoutParams.MATCH_PARENT, 250 * (int) density));
             }
             imageView.setScaleType(ImageView.ScaleType.FIT_XY);
         } else {

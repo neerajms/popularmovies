@@ -26,6 +26,7 @@ import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.util.ArrayList;
 
 public class MainActivity extends AppCompatActivity implements MainActivityFragment.OnGridItemSelectedListener {
     private boolean mTwoPane = false;
@@ -43,6 +44,8 @@ public class MainActivity extends AppCompatActivity implements MainActivityFragm
 
     private static boolean last = false;
 
+    public static ArrayList<MovieDetailsActivity.ClearPosterGarbage> postersToBeDeleted;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -50,6 +53,8 @@ public class MainActivity extends AppCompatActivity implements MainActivityFragm
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
         CoordinatorLayout coordinatorLayout = (CoordinatorLayout) findViewById(R.id.coordinator_layout);
+
+        postersToBeDeleted = new ArrayList<>();
 
         if (!isInternetOn(this)) {
             Snackbar.make(coordinatorLayout, "No internet connection", Snackbar.LENGTH_INDEFINITE).show();
@@ -80,6 +85,24 @@ public class MainActivity extends AppCompatActivity implements MainActivityFragm
             mMovieUserRating = movieDetailsParcelable.mMovieUserRating;
             mMovieBackDropPath = movieDetailsParcelable.mMovieBackDropPath;
         }
+    }
+
+    @Override
+    protected void onStart() {
+        super.onStart();
+        if (!postersToBeDeleted.isEmpty()) {
+            for (int i = 0; i < postersToBeDeleted.size(); i++) {
+                File posterFile = new File(
+                        postersToBeDeleted.get(i).mPosterPath,
+                        postersToBeDeleted.get(i).mFileName);
+                boolean deletedPoster = posterFile.delete();
+                File backDropFile = new File(
+                        postersToBeDeleted.get(i).mPosterPath,
+                        postersToBeDeleted.get(i).mFileName);
+                boolean deletedBackDrop = backDropFile.delete();
+            }
+        }
+        postersToBeDeleted.clear();
     }
 
     @Override

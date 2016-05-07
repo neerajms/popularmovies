@@ -92,6 +92,8 @@ public class MovieDetailsActivity extends AppCompatActivity {
         ImageButton imageButton = (ImageButton) findViewById(R.id.favorite_button);
 
         if (imageButton.getTag().equals("R.drawable.favorite")) {
+            MainActivity.postersToBeDeleted.clear();
+            
             imageButton.setImageResource(R.drawable.ic_action_favorite_clicked);
             imageButton.setTag("R.drawable.favorite_clicked");
             Toast.makeText(this, "Movie added to Favorites", Toast.LENGTH_SHORT).show();
@@ -128,11 +130,21 @@ public class MovieDetailsActivity extends AppCompatActivity {
             int i = getContentResolver().delete(queryUri, null, null);
             if (i > 0) {
                 MainActivityFragment.mDataSetChanged = true;
-//                File posterFile = new File(posterPath, mMovieId + ".png");
-//                boolean deletedPoster = posterFile.delete();
-//                File backDropFile = new File(backDropPath, mMovieId + "back.png");
-//                boolean deletedBackDrop = backDropFile.delete();
+                ClearPosterGarbage garbagePoster = new ClearPosterGarbage(posterPath, mMovieId + ".png");
+                MainActivity.postersToBeDeleted.add(garbagePoster);
+                ClearPosterGarbage garbageBackDrop = new ClearPosterGarbage(backDropPath, mMovieId + "back.png");
+                MainActivity.postersToBeDeleted.add(garbageBackDrop);
             }
+        }
+    }
+
+    public class ClearPosterGarbage {
+        String mPosterPath;
+        String mFileName;
+
+        public ClearPosterGarbage(String posterPath, String fileName) {
+            mPosterPath = posterPath;
+            mFileName = fileName;
         }
     }
 

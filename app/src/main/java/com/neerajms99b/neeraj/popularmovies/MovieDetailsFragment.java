@@ -230,6 +230,7 @@ public class MovieDetailsFragment extends Fragment {
         VolleyCallBack volleyCallBack = new VolleyCallBack() {
             @Override
             public void returnResponse(String result) {
+                Log.d("JSON RESULT::", result);
                 getReviewsFromJson(result);
             }
         };
@@ -246,8 +247,14 @@ public class MovieDetailsFragment extends Fragment {
             JSONObject reviewsJsonObject = new JSONObject(jsonResult);
             JSONArray reviewsJsonArray = reviewsJsonObject.getJSONArray(TMDB_RESULTS);
             mReviewsList.clear();
+            if (reviewsJsonArray.length() == 0) {
+                author = "No review found";
+                content = "";
+                ReviewDetails noReviewFound = new ReviewDetails(author, content);
+                mReviewsList.add(noReviewFound);
+            }
             for (int i = 0; i < reviewsJsonArray.length(); i++) {
-                author = reviewsJsonArray.getJSONObject(i).getString(TMDB_REVIEW_AUTHOR);
+                author = "Review by " + reviewsJsonArray.getJSONObject(i).getString(TMDB_REVIEW_AUTHOR);
                 content = reviewsJsonArray.getJSONObject(i).getString(TMDB_REVIEW_CONTENT);
                 ReviewDetails reviewDetailsObject = new ReviewDetails(author, content);
                 mReviewsList.add(reviewDetailsObject);
@@ -377,10 +384,11 @@ public class MovieDetailsFragment extends Fragment {
 
         @Override
         public TrailerAdapter.ViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
+            float density = getContext().getResources().getDisplayMetrics().density;
             ImageView v = (ImageView) LayoutInflater.from(parent.getContext())
                     .inflate(R.layout.trailer_image_view, parent, false);
-            v.setLayoutParams(new RecyclerView.LayoutParams(700, 500));
-            v.setPadding(32, 32, 0, 32);
+            v.setLayoutParams(new RecyclerView.LayoutParams(260 * (int) density, 220 * (int) density));
+            v.setPadding(8 * (int) density, 8 * (int) density, 0, 8 * (int) density);
             v.setScaleType(ImageView.ScaleType.FIT_XY);
             ViewHolder vh = new ViewHolder(v);
             return vh;
@@ -408,8 +416,10 @@ public class MovieDetailsFragment extends Fragment {
 
         @Override
         public void onBindViewHolder(ViewHolder holder, int position) {
-            holder.mAuthorTextView.setText("Review by " + mReviewsList.get(position).mAuthor);
-            holder.mContentTextView.setText(mReviewsList.get(position).mContent);
+            holder.mAuthorTextView.setText(mReviewsList.get(position).mAuthor);
+            if (!mReviewsList.get(position).mAuthor.equals("No review found")) {
+                holder.mContentTextView.setText(mReviewsList.get(position).mContent);
+            }
         }
 
         @Override

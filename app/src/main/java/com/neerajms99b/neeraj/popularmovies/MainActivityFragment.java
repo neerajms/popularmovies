@@ -36,7 +36,7 @@ public class MainActivityFragment extends Fragment {
     private String mFetchMoviesBaseUrl = null;
     private static boolean emptyDatabase;
     private final static String mApiKeyParam = "api_key";
-    private final static String mKeyValue = "key goes here";
+    private final static String mKeyValue = "2b34f0a753ed8e38b7546773dbed2720";
     private static MainActivity mCallBack;
 
     public final static String mPopularityTag = "Popularity";
