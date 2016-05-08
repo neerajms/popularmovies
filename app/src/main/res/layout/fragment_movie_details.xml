@@ -1,26 +1,29 @@
 <ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:card_view="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/details_scroll_view"
     android:layout_width="match_parent"
-    android:layout_height="wrap_content"
+    android:layout_height="match_parent"
     android:background="@color/colorBackgroundMovieDetails">
 
-    <LinearLayout
+    <RelativeLayout
+        android:id="@+id/details_linear_layout"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:orientation="vertical"
+        android:layout_height="match_parent"
         tools:context="com.neerajms99b.neeraj.popularmovies.MovieDetailsFragment">
 
         <TextView
             android:id="@+id/movie_title_text_view"
             style="@style/movie_title"
             android:layout_width="wrap_content"
-            android:layout_height="wrap_content" />
+            android:layout_height="wrap_content"
+            android:layout_alignParentTop="true" />
 
         <android.support.v7.widget.CardView
             android:id="@+id/cardview"
             android:layout_width="match_parent"
             android:layout_height="400dp"
+            android:layout_below="@+id/movie_title_text_view"
             android:layout_margin="@dimen/layout_margin_8dp"
             android:layout_marginBottom="@dimen/layout_margin_8dp"
             android:layout_marginTop="@dimen/layout_margin_8dp"
@@ -157,6 +160,7 @@
             android:id="@+id/trailers_cardview"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
+            android:layout_below="@id/overview_cardview"
             android:layout_margin="@dimen/layout_margin_8dp"
             android:elevation="@dimen/card_view_elevation"
             card_view:cardCornerRadius="@dimen/card_view_corner_radius">
@@ -184,10 +188,8 @@
                     android:id="@+id/trailer_recycler_view"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:layout_weight="1">
+                    android:layout_weight="1" />
 
-
-                </android.support.v7.widget.RecyclerView>
             </LinearLayout>
 
         </android.support.v7.widget.CardView>
@@ -196,22 +198,26 @@
             android:id="@+id/reviews_cardview"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_below="@+id/overview_cardview"
+            android:layout_below="@+id/trailers_cardview"
             android:layout_margin="@dimen/layout_margin_8dp"
             android:elevation="@dimen/card_view_elevation"
             card_view:cardCornerRadius="@dimen/card_view_corner_radius">
 
-            <android.support.v7.widget.RecyclerView
-                android:id="@+id/reviews_recycler_view"
+            <LinearLayout
                 android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_gravity="center_horizontal">
+                android:layout_height="match_parent"
+                android:orientation="vertical">
 
+                <android.support.v7.widget.RecyclerView
+                    android:id="@+id/reviews_recycler_view"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_gravity="center_horizontal" />
 
-            </android.support.v7.widget.RecyclerView>
+            </LinearLayout>
 
         </android.support.v7.widget.CardView>
 
-    </LinearLayout>
+    </RelativeLayout>
 
 </ScrollView>

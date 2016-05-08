@@ -26,6 +26,7 @@ import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import java.io.File;
 import java.util.ArrayList;
 
 /**
@@ -34,9 +35,9 @@ import java.util.ArrayList;
 public class MainActivityFragment extends Fragment {
 
     private String mFetchMoviesBaseUrl = null;
-    private static boolean emptyDatabase;
+    private static boolean mEmptyDatabase;
     private final static String mApiKeyParam = "api_key";
-    private final static String mKeyValue = "Key goes here";
+    private final static String mKeyValue = "2b34f0a753ed8e38b7546773dbed2720";
     private static MainActivity mCallBack;
 
     public final static String mPopularityTag = "Popularity";
@@ -45,12 +46,13 @@ public class MainActivityFragment extends Fragment {
 
     public static boolean mDataSetChanged;
     public static int mGridPosition;
-    public static boolean offline;
+    public static boolean mOffline;
     public static Context mContext;
     public static PopMoviesAdapter mPopMoviesAdapter = null;
     public static ArrayList<MovieDetailsParcelable> mMovieDetailsArrayList = null;
     public static String mSortCriteria = mPopularityTag;
 
+    public static MenuItem mMenuItemClearAll;
 
     public MainActivityFragment() {
     }
@@ -61,7 +63,7 @@ public class MainActivityFragment extends Fragment {
 
     @Override
     public void onCreate(@Nullable Bundle savedInstanceState) {
-        emptyDatabase = false;
+        mEmptyDatabase = false;
         super.onCreate(savedInstanceState);
         if (savedInstanceState != null) {
             mSortCriteria = savedInstanceState.getString("sortcriteria");
@@ -103,6 +105,16 @@ public class MainActivityFragment extends Fragment {
         mCallBack = (MainActivity) getActivity();
         mContext = getContext();
 
+        if (MainActivityFragment.mSortCriteria.equals(MainActivityFragment.mFavoritesTag)
+                && MainActivity.last ) {
+            mMenuItemClearAll.setVisible(false);
+            if (mCallBack.isTwoPane()) {
+                MainActivity.mFrameLayout.setVisibility(View.INVISIBLE);
+            }
+            Toast.makeText(getContext(),
+                    "You have removed all the favorites, nothing to show here",
+                    Toast.LENGTH_SHORT).show();
+        }
         GridView moviesGridView = (GridView) rootView.findViewById(R.id.main_grid_view);
         mPopMoviesAdapter = new PopMoviesAdapter(getActivity());
 
@@ -112,7 +124,7 @@ public class MainActivityFragment extends Fragment {
         }
 
         if (mMovieDetailsArrayList.isEmpty() && mSortCriteria.equals(mFavoritesTag)) {
-            offline = true;
+            mOffline = true;
             mMovieDetailsArrayList = new ArrayList<MovieDetailsParcelable>();
             updateGridOffline();
         }
@@ -191,18 +203,25 @@ public class MainActivityFragment extends Fragment {
         MenuItem menuItemSortPopularity = (MenuItem) menu.findItem(R.id.menuSortPopularity);
         MenuItem menuItemSortRating = (MenuItem) menu.findItem(R.id.menuSortRating);
         MenuItem menuItemFavorites = (MenuItem) menu.findItem(R.id.menuFavorites);
+        mMenuItemClearAll = (MenuItem) menu.findItem(R.id.clear_all);
 
+        mMenuItemClearAll.setVisible(false);
         if (mSortCriteria.equals(mPopularityTag)) {
             if (!menuItemSortPopularity.isChecked()) {
                 menuItemSortPopularity.setChecked(true);
             }
+            mMenuItemClearAll.setVisible(false);
         } else if (mSortCriteria.equals(mRatingTag)) {
             if (!menuItemSortRating.isChecked()) {
                 menuItemSortRating.setChecked(true);
             }
+            mMenuItemClearAll.setVisible(false);
         } else if (mSortCriteria.equals(mFavoritesTag)) {
             if (!menuItemFavorites.isChecked()) {
                 menuItemFavorites.setChecked(true);
+            }
+            if (!MainActivity.last) {
+                mMenuItemClearAll.setVisible(true);
             }
         }
     }
@@ -212,58 +231,98 @@ public class MainActivityFragment extends Fragment {
         int id = item.getItemId();
         switch (id) {
             case R.id.menuFavorites:
-                if (mCallBack.isTwoPane()) {
-                    MainActivity.mFrameLayout.setVisibility(View.VISIBLE);
+                if (!MainActivity.last) {
+                    mMenuItemClearAll.setVisible(true);
                 }
                 int tempGridPosition;
                 tempGridPosition = mGridPosition;
                 mGridPosition = 0;
                 updateGridOffline();
-                if (!emptyDatabase) {
+                if (!mEmptyDatabase) {
                     item.setChecked(true);
-                    String tempSortCriteria = mSortCriteria;
                     mSortCriteria = mFavoritesTag;
-                    offline = true;
+                    mOffline = true;
                 } else {
-                    Toast.makeText(getContext(), "Looks like you have no favorites yet", Toast.LENGTH_SHORT).show();
-                    emptyDatabase = false;
+                    Toast.makeText(getContext(),
+                            "Looks like you have no favorites yet",
+                            Toast.LENGTH_SHORT).show();
+                    mMenuItemClearAll.setVisible(false);
+                    mEmptyDatabase = false;
                     mGridPosition = tempGridPosition;
                 }
                 return true;
+
             case R.id.menuSortPopularity:
-                if (mCallBack.isTwoPane()) {
-                    MainActivity.mFrameLayout.setVisibility(View.VISIBLE);
-                }
+                MainActivity.last = false;
                 item.setChecked(true);
+                mMenuItemClearAll.setVisible(false);
                 mCallBack.setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_SENSOR);
                 mGridPosition = 0;
                 mSortCriteria = mPopularityTag;
-                offline = false;
+                mOffline = false;
                 updateMovieGridView();
                 mMovieDetailsArrayList.clear();
                 mPopMoviesAdapter.notifyDataSetChanged();
-                return true;
-            case R.id.menuSortRating:
-                item.setChecked(true);
                 if (mCallBack.isTwoPane()) {
                     MainActivity.mFrameLayout.setVisibility(View.VISIBLE);
                 }
+                return true;
+
+            case R.id.menuSortRating:
+                item.setChecked(true);
+                mMenuItemClearAll.setVisible(false);
+                MainActivity.last = false;
                 mGridPosition = 0;
                 mCallBack.setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_SENSOR);
                 mSortCriteria = mRatingTag;
-                offline = false;
+                mOffline = false;
                 updateMovieGridView();
                 mMovieDetailsArrayList.clear();
                 mPopMoviesAdapter.notifyDataSetChanged();
+                if (mCallBack.isTwoPane()) {
+                    MainActivity.mFrameLayout.setVisibility(View.VISIBLE);
+                }
                 return true;
+
+            case R.id.clear_all:
+                clearAllFavorites();
+                mMenuItemClearAll.setVisible(false);
+                if (mCallBack.isTwoPane()) {
+                    MainActivity.mFrameLayout.setVisibility(View.INVISIBLE);
+                }
+                MainActivity.last = true;
+                Toast.makeText(getContext(), "You have removed all the favorites, nothing to show here",
+                        Toast.LENGTH_SHORT).show();
+                return true;
+
             default:
                 return super.onOptionsItemSelected(item);
         }
     }
 
-    public static void updateGridOffline() {
-        Cursor c = mContext.getContentResolver().query(MoviesContentProvider.uri,
+    private void clearAllFavorites() {
+        Cursor c = mContext.getContentResolver().query(MoviesContentProvider.mUri,
                 null, null, null, null);
+        String posterPath = mContext.getFilesDir().getAbsolutePath();
+        String movieId;
+
+        if (c.moveToFirst()) {
+            movieId = c.getString(c.getColumnIndex(MoviesContentProvider.KEY_ID));
+            File posterFile = new File(posterPath, movieId + ".png");
+            boolean deletedPoster = posterFile.delete();
+            File backDropFile = new File(posterPath, movieId + "back.png");
+            boolean deletedBackDrop = backDropFile.delete();
+        }
+
+        int deleteCount = mContext.getContentResolver().delete(MoviesContentProvider.mUri, null, null);
+        mMovieDetailsArrayList.clear();
+        mPopMoviesAdapter.notifyDataSetChanged();
+    }
+
+    public static void updateGridOffline() {
+        Cursor c = mContext.getContentResolver().query(MoviesContentProvider.mUri,
+                null, null, null, null);
+
         String movieId,
                 movieTitle,
                 moviePosterPath,
@@ -271,9 +330,9 @@ public class MainActivityFragment extends Fragment {
                 movieUserRating,
                 movieBackdropPath,
                 movieReleaseDate = null;
-        int index = 0;
+
         if (c.moveToFirst()) {
-            emptyDatabase = false;
+            mEmptyDatabase = false;
             mMovieDetailsArrayList.clear();
             mPopMoviesAdapter.notifyDataSetChanged();
 
@@ -296,7 +355,7 @@ public class MainActivityFragment extends Fragment {
             } while (c.moveToNext());
             onPostExecute();
         } else {
-            emptyDatabase = true;
+            mEmptyDatabase = true;
         }
     }
 
@@ -335,7 +394,7 @@ public class MainActivityFragment extends Fragment {
             }
             mPopMoviesAdapter.notifyDataSetChanged();
 
-            if (mCallBack.isTwoPane()) {//&& mSortCriteria.equals(mFavoritesTag)
+            if (mCallBack.isTwoPane()) {
                 MovieDetailsParcelable tempObj = mMovieDetailsArrayList.get(mGridPosition);
                 fetchTrailers(tempObj.mMovieId);
                 mCallBack.onMovieSelected(

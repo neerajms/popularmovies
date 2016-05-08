@@ -22,7 +22,7 @@ public class MoviesContentProvider extends ContentProvider {
     private static final String AUTHORITY = "com.neerajms99b.neeraj.popularmovies";
     private static final String TABLE_NAME = "movies";
     private static final String URL = "content://" + AUTHORITY + "/" + TABLE_NAME;
-    public static Uri uri = Uri.parse(URL);
+    public static Uri mUri = Uri.parse(URL);
 
     private SQLiteDatabase database;
 
@@ -59,6 +59,7 @@ public class MoviesContentProvider extends ContentProvider {
             case 1:
                 if (TextUtils.isEmpty(sortOrder)) sortOrder = "_id ASC";
                 break;
+
             case 2:
                 selection = "_id=" + uri.getLastPathSegment();
                 Log.d("SELECTION:", selection);
@@ -103,11 +104,13 @@ public class MoviesContentProvider extends ContentProvider {
             case 1:
                 count = database.delete(TABLE_NAME, selection, selectionArgs);
                 break;
+
             case 2:
                 String id = uri.getPathSegments().get(1);
                 count = database.delete(TABLE_NAME, "_id = " + id +
                         (!TextUtils.isEmpty(selection) ? " AND (" + selection + ')' : ""), selectionArgs);
                 break;
+
             default:
                 throw new IllegalArgumentException("Unknown URI " + uri);
         }

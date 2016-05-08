@@ -7,9 +7,10 @@ import android.graphics.BitmapFactory;
 import android.graphics.drawable.BitmapDrawable;
 import android.net.Uri;
 import android.os.Bundle;
+import android.os.PersistableBundle;
+import android.support.v4.widget.NestedScrollView;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
-import android.util.Log;
 import android.view.View;
 import android.widget.ImageButton;
 import android.widget.ImageView;
@@ -32,9 +33,9 @@ public class MovieDetailsActivity extends AppCompatActivity {
     private String mMovieReleaseDate;
     private String mMoviePlot;
     private String mMovieBackDropPath;
-    private static String posterPath;
-    private static String backDropPath;
-    private boolean dataSetChanged;
+
+    private int moviesCount;
+    private NestedScrollView mDetailsNestedScrollView;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -42,6 +43,13 @@ public class MovieDetailsActivity extends AppCompatActivity {
         setContentView(R.layout.activity_movie_details);
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
+
+        mDetailsNestedScrollView = (NestedScrollView) findViewById(R.id.nested_scroll_view);
+        if (savedInstanceState != null && savedInstanceState.containsKey("scroll_position")) {
+            mDetailsNestedScrollView.setScrollY(savedInstanceState.getInt("scroll_position"));
+        }
+
+        moviesCount = MainActivityFragment.mMovieDetailsArrayList.size();
 
         Intent intent = getIntent();
         mMovieId = intent.getExtras().getString("movieId");
@@ -53,7 +61,7 @@ public class MovieDetailsActivity extends AppCompatActivity {
         mMovieBackDropPath = intent.getExtras().getString("movieBackDropPath");
 
         ImageView imageView = (ImageView) findViewById(R.id.back_drop_image);
-        if (MainActivityFragment.offline) {
+        if (MainActivityFragment.mOffline) {
             try {
                 File f = new File(mMovieBackDropPath, mMovieId + "back.png");
                 Bitmap b = BitmapFactory.decodeStream(new FileInputStream(f));
@@ -85,14 +93,21 @@ public class MovieDetailsActivity extends AppCompatActivity {
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
     }
 
+    @Override
+    public void onSaveInstanceState(Bundle outState, PersistableBundle outPersistentState) {
+        super.onSaveInstanceState(outState, outPersistentState);
+        outState.putInt("scroll_position", mDetailsNestedScrollView.getScrollY());
+    }
+
     public void favoriteMovie(View view) {
-        posterPath = getFilesDir().getAbsolutePath();
-        backDropPath = getFilesDir().getAbsolutePath();
+        String posterPath = getFilesDir().getAbsolutePath();
+        String backDropPath = getFilesDir().getAbsolutePath();
 
         ImageButton imageButton = (ImageButton) findViewById(R.id.favorite_button);
 
         if (imageButton.getTag().equals("R.drawable.favorite")) {
-            MainActivity.postersToBeDeleted.clear();
+            MainActivity.mPostersToBeDeleted.clear();
+            moviesCount++;
 
             imageButton.setImageResource(R.drawable.ic_action_favorite_clicked);
             imageButton.setTag("R.drawable.favorite_clicked");
@@ -119,21 +134,28 @@ public class MovieDetailsActivity extends AppCompatActivity {
             contentValues.put(MoviesContentProvider.KEY_MOVIE_POSTER, posterPath);
             contentValues.put(MoviesContentProvider.KEY_MOVIE_RELEASE_DATE, mMovieReleaseDate);
             contentValues.put(MoviesContentProvider.KEY_MOVIE_USER_RATING, mMovieUserRating);
-            Uri uri = getContentResolver().insert(MoviesContentProvider.uri, contentValues);
+            Uri uri = getContentResolver().insert(MoviesContentProvider.mUri, contentValues);
         } else if (imageButton.getTag().equals("R.drawable.favorite_clicked")) {
+            moviesCount--;
             imageButton.setImageResource(R.drawable.ic_action_favorite);
             imageButton.setTag("R.drawable.favorite");
             Toast.makeText(this, "Movie removed from Favorites", Toast.LENGTH_SHORT).show();
 
-            String url = String.valueOf(MoviesContentProvider.uri) + "/" + mMovieId;
+            String url = String.valueOf(MoviesContentProvider.mUri) + "/" + mMovieId;
             Uri queryUri = Uri.parse(url);
             int i = getContentResolver().delete(queryUri, null, null);
             if (i > 0) {
                 MainActivityFragment.mDataSetChanged = true;
                 ClearPosterGarbage garbagePoster = new ClearPosterGarbage(posterPath, mMovieId + ".png");
-                MainActivity.postersToBeDeleted.add(garbagePoster);
+                MainActivity.mPostersToBeDeleted.add(garbagePoster);
                 ClearPosterGarbage garbageBackDrop = new ClearPosterGarbage(backDropPath, mMovieId + "back.png");
-                MainActivity.postersToBeDeleted.add(garbageBackDrop);
+                MainActivity.mPostersToBeDeleted.add(garbageBackDrop);
+            }
+            if (moviesCount == 0){
+                MainActivity.last = true;
+                MainActivityFragment.mMenuItemClearAll.setVisible(false);
+                Toast.makeText(this, "You have removed all the favorites, nothing to show here",
+                        Toast.LENGTH_SHORT).show();
             }
         }
     }

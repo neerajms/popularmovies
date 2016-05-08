@@ -24,6 +24,7 @@ import android.view.ViewGroup;
 import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
+import android.widget.ScrollView;
 import android.widget.TextView;
 
 import com.android.volley.RequestQueue;
@@ -53,7 +54,7 @@ public class MovieDetailsFragment extends Fragment {
 
     private static String mShareUrl;
 
-    private MovieDetailsParcelable movieDetailsParcelable;
+    private MovieDetailsParcelable mMovieDetailsParcelable;
 
     private ArrayList<String> mTrailersList;
     private String trailerKey;
@@ -61,7 +62,7 @@ public class MovieDetailsFragment extends Fragment {
     private RecyclerView.Adapter mTrailerAdapter;
     private RecyclerView.LayoutManager mTrailersLayoutManager;
 
-    private ArrayList<ReviewDetails> mReviewsList;
+    private ArrayList<ReviewDetailsParcelable> mReviewsList;
     private RecyclerView mReviewsRecyclerView;
     private RecyclerView.Adapter mReviewsAdapter;
     private RecyclerView.LayoutManager mReviewsLayoutManager;
@@ -69,9 +70,8 @@ public class MovieDetailsFragment extends Fragment {
     private String mFetchMoviesBaseUrl = "https://api.themoviedb.org/3/movie/";
     private final String mApiKeyParam = "api_key";
     private final String mKeyValue = "2b34f0a753ed8e38b7546773dbed2720";
-    private RequestQueue queue;
+    private RequestQueue mQueue;
 
-    private final static String mKeyTrailerList = "trailer_list";
     private final static String mKeyMovieId = "movie_id";
     private final static String mKeyMoviePosterPath = "movie_poster_full_path";
     private final static String mKeyMovieUserRating = "movie_user_rating";
@@ -79,6 +79,8 @@ public class MovieDetailsFragment extends Fragment {
     private final static String mKeyMoviePlot = "movie_plot";
     private final static String mKeyMovieTitle = "movie_title";
     private final static String mKeyMovieBackDropPath = "movie_back_drop_path";
+
+    public ScrollView mDetailsScrollView;
 
     public MovieDetailsFragment() {
     }
@@ -110,18 +112,20 @@ public class MovieDetailsFragment extends Fragment {
     @Override
     public void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        if (savedInstanceState != null && savedInstanceState.containsKey("parcel")) {
-            movieDetailsParcelable = savedInstanceState.getParcelable("parcel");
-            mMovieId = movieDetailsParcelable.mMovieId;
-            mMovieTitle = movieDetailsParcelable.mMovieTitle;
-            mMoviePlot = movieDetailsParcelable.mMoviePlot;
-            mMoviePosterPath = movieDetailsParcelable.mMoviePosterFullPath;
-            mMovieReleaseDate = movieDetailsParcelable.mMovieReleaseDate;
-            mMovieUserRating = movieDetailsParcelable.mMovieUserRating;
-            mMovieBackDropPath = movieDetailsParcelable.mMovieBackDropPath;
+        mTrailersList = new ArrayList<String>();
+        mReviewsList = new ArrayList<ReviewDetailsParcelable>();
+
+        if (savedInstanceState != null && savedInstanceState.containsKey("parcelMovieDetails")) {
+            mMovieDetailsParcelable = savedInstanceState.getParcelable("parcelMovieDetails");
+            mMovieId = mMovieDetailsParcelable.mMovieId;
+            mMovieTitle = mMovieDetailsParcelable.mMovieTitle;
+            mMoviePlot = mMovieDetailsParcelable.mMoviePlot;
+            mMoviePosterPath = mMovieDetailsParcelable.mMoviePosterFullPath;
+            mMovieReleaseDate = mMovieDetailsParcelable.mMovieReleaseDate;
+            mMovieUserRating = mMovieDetailsParcelable.mMovieUserRating;
+            mMovieBackDropPath = mMovieDetailsParcelable.mMovieBackDropPath;
 
         } else if (getArguments() != null) {
-            trailerKey = this.getArguments().getString(mKeyTrailerList);
             mMovieId = this.getArguments().getString(mKeyMovieId);
             mMovieTitle = this.getArguments().getString(mKeyMovieTitle);
             mMoviePosterPath = this.getArguments().getString(mKeyMoviePosterPath);
@@ -130,7 +134,7 @@ public class MovieDetailsFragment extends Fragment {
             mMoviePlot = this.getArguments().getString(mKeyMoviePlot);
             mMovieBackDropPath = this.getArguments().getString(mKeyMovieBackDropPath);
 
-            movieDetailsParcelable = new MovieDetailsParcelable(
+            mMovieDetailsParcelable = new MovieDetailsParcelable(
                     mMovieId,
                     mMovieTitle,
                     mMoviePosterPath,
@@ -140,17 +144,28 @@ public class MovieDetailsFragment extends Fragment {
                     mMovieBackDropPath
             );
         }
+        if (savedInstanceState != null && savedInstanceState.containsKey("parcelReviews")) {
+            mReviewsList = savedInstanceState.getParcelableArrayList("parcelReviews");
+        } else {
+            fetchReviews();
+        }
+        if (savedInstanceState != null && savedInstanceState.containsKey("parcelTrailers")) {
+            mTrailersList = savedInstanceState.getStringArrayList("parcelTrailers");
+        } else {
+            fetchTrailers();
+        }
         mTrailerAdapter = new TrailerAdapter(getActivity());
         mReviewsAdapter = new ReviewsAdapter();
-        fetchTrailers();
-        fetchReviews();
         setHasOptionsMenu(true);
     }
 
     @Override
     public void onSaveInstanceState(Bundle outState) {
         super.onSaveInstanceState(outState);
-        outState.putParcelable("parcel", movieDetailsParcelable);
+        outState.putParcelable("parcelMovieDetails", mMovieDetailsParcelable);
+        outState.putStringArrayList("parcelTrailers", mTrailersList);
+        outState.putParcelableArrayList("parcelReviews", mReviewsList);
+        outState.putInt("scrollPosition", mDetailsScrollView.getScrollY());
     }
 
     @Override
@@ -189,7 +204,7 @@ public class MovieDetailsFragment extends Fragment {
                 .build();
         String url = builtUri.toString();
 
-        queue = Volley.newRequestQueue(getActivity());
+        mQueue = Volley.newRequestQueue(getActivity());
         FetchDataTask fetchMoviesTask = new FetchDataTask();
         VolleyCallBack volleyCallBack = new VolleyCallBack() {
             @Override
@@ -197,7 +212,7 @@ public class MovieDetailsFragment extends Fragment {
                 getTrailersFromJson(result);
             }
         };
-        fetchMoviesTask.executeThread(url, queue, volleyCallBack);
+        fetchMoviesTask.executeThread(url, mQueue, volleyCallBack);
     }
 
     public void getTrailersFromJson(String jsonResult) {
@@ -225,16 +240,15 @@ public class MovieDetailsFragment extends Fragment {
                 .appendQueryParameter(mApiKeyParam, mKeyValue)
                 .build();
         String url = builtUri.toString();
-        queue = Volley.newRequestQueue(getActivity());
+        mQueue = Volley.newRequestQueue(getActivity());
         FetchDataTask fetchMoviesTask = new FetchDataTask();
         VolleyCallBack volleyCallBack = new VolleyCallBack() {
             @Override
             public void returnResponse(String result) {
-                Log.d("JSON RESULT::", result);
                 getReviewsFromJson(result);
             }
         };
-        fetchMoviesTask.executeThread(url, queue, volleyCallBack);
+        fetchMoviesTask.executeThread(url, mQueue, volleyCallBack);
     }
 
     public void getReviewsFromJson(String jsonResult) {
@@ -247,32 +261,25 @@ public class MovieDetailsFragment extends Fragment {
             JSONObject reviewsJsonObject = new JSONObject(jsonResult);
             JSONArray reviewsJsonArray = reviewsJsonObject.getJSONArray(TMDB_RESULTS);
             mReviewsList.clear();
+
             if (reviewsJsonArray.length() == 0) {
                 author = "No review found";
                 content = "";
-                ReviewDetails noReviewFound = new ReviewDetails(author, content);
+                ReviewDetailsParcelable noReviewFound = new ReviewDetailsParcelable(author, content);
                 mReviewsList.add(noReviewFound);
             }
+
             for (int i = 0; i < reviewsJsonArray.length(); i++) {
                 author = "Review by " + reviewsJsonArray.getJSONObject(i).getString(TMDB_REVIEW_AUTHOR);
                 content = reviewsJsonArray.getJSONObject(i).getString(TMDB_REVIEW_CONTENT);
-                ReviewDetails reviewDetailsObject = new ReviewDetails(author, content);
+                ReviewDetailsParcelable reviewDetailsObject = new ReviewDetailsParcelable(author, content);
                 mReviewsList.add(reviewDetailsObject);
             }
+
             mReviewsAdapter.notifyDataSetChanged();
 
         } catch (JSONException je) {
             Log.d("Error:", "Could not extract reviews from JSON");
-        }
-    }
-
-    public class ReviewDetails {
-        String mAuthor;
-        String mContent;
-
-        public ReviewDetails(String author, String content) {
-            this.mAuthor = author;
-            this.mContent = content;
         }
     }
 
@@ -283,8 +290,11 @@ public class MovieDetailsFragment extends Fragment {
 
         final ImageButton favoriteImageButton = (ImageButton) rootView.findViewById(R.id.favorite_button);
 
-        mTrailersList = new ArrayList<String>();
-        mReviewsList = new ArrayList<ReviewDetails>();
+        mDetailsScrollView = (ScrollView) rootView.findViewById(R.id.details_scroll_view);
+
+        if (savedInstanceState != null && savedInstanceState.containsKey("scrollPosition")) {
+            mDetailsScrollView.setScrollY(savedInstanceState.getInt("scrollPosition"));
+        }
 
         mTrailersRecyclerView = (RecyclerView) rootView.findViewById(R.id.trailer_recycler_view);
         mTrailersRecyclerView.setHasFixedSize(true);
@@ -300,7 +310,7 @@ public class MovieDetailsFragment extends Fragment {
         mReviewsRecyclerView.setLayoutManager(mReviewsLayoutManager);
         mReviewsRecyclerView.setAdapter(mReviewsAdapter);
 
-        String url = String.valueOf(MoviesContentProvider.uri) + "/" + mMovieId;
+        String url = String.valueOf(MoviesContentProvider.mUri) + "/" + mMovieId;
         Uri queryUri = Uri.parse(url);
         Cursor c = getContext().getContentResolver().query(queryUri, null, null, null, null);
         if (c.moveToFirst()) {
@@ -316,7 +326,7 @@ public class MovieDetailsFragment extends Fragment {
 
         final ImageView moviePosterImage = (ImageView) rootView.findViewById(R.id.movie_poster_image_view);
 
-        if (MainActivityFragment.offline) {
+        if (MainActivityFragment.mOffline) {
             try {
                 File f = new File(mMoviePosterPath, mMovieId + ".png");
                 Bitmap b = BitmapFactory.decodeStream(new FileInputStream(f));
@@ -387,7 +397,7 @@ public class MovieDetailsFragment extends Fragment {
             float density = getContext().getResources().getDisplayMetrics().density;
             ImageView v = (ImageView) LayoutInflater.from(parent.getContext())
                     .inflate(R.layout.trailer_image_view, parent, false);
-            v.setLayoutParams(new RecyclerView.LayoutParams(260 * (int) density, 220 * (int) density));
+            v.setLayoutParams(new RecyclerView.LayoutParams(220 * (int) density, 180 * (int) density));
             v.setPadding(8 * (int) density, 8 * (int) density, 0, 8 * (int) density);
             v.setScaleType(ImageView.ScaleType.FIT_XY);
             ViewHolder vh = new ViewHolder(v);

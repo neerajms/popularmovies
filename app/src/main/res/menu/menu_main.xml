@@ -2,10 +2,10 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     tools:context="com.neerajms99b.neeraj.popularmovies.MainActivity">
-    <item xmlns:app="http://schemas.android.com/apk/res-auto"
+    <item
         android:id="@+id/action_sort"
         android:icon="@drawable/ic_action_sort"
-        android:orderInCategory="100"
+        android:orderInCategory="300"
         android:title="Sort"
         app:showAsAction="always">
         <menu>
@@ -22,4 +22,9 @@
             </group>
         </menu>
     </item>
+    <item
+        android:id="@+id/clear_all"
+        android:orderInCategory="200"
+        android:title="Clear all"
+        app:showAsAction="ifRoom" />
 </menu>

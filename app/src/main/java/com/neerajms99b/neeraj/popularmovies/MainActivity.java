@@ -11,6 +11,7 @@ import android.net.Uri;
 import android.os.Bundle;
 import android.support.design.widget.CoordinatorLayout;
 import android.support.design.widget.Snackbar;
+import android.support.v4.widget.NestedScrollView;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.util.Log;
@@ -38,13 +39,15 @@ public class MainActivity extends AppCompatActivity implements MainActivityFragm
     private String mMoviePlot;
     private String mMovieBackDropPath;
 
-    private MovieDetailsParcelable movieDetailsParcelable;
+    private MovieDetailsParcelable mMovieDetailsParcelable;
 
     public static FrameLayout mFrameLayout;
 
-    private static boolean last = false;
+    public static boolean last = false;
 
-    public static ArrayList<MovieDetailsActivity.ClearPosterGarbage> postersToBeDeleted;
+    public static ArrayList<MovieDetailsActivity.ClearPosterGarbage> mPostersToBeDeleted;
+
+    private NestedScrollView mDetailsNestedScrollView;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -52,10 +55,10 @@ public class MainActivity extends AppCompatActivity implements MainActivityFragm
         setContentView(R.layout.activity_main);
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
+
+        mPostersToBeDeleted = new ArrayList<>();
+
         CoordinatorLayout coordinatorLayout = (CoordinatorLayout) findViewById(R.id.coordinator_layout);
-
-        postersToBeDeleted = new ArrayList<>();
-
         if (!isInternetOn(this)) {
             Snackbar.make(coordinatorLayout, "No internet connection", Snackbar.LENGTH_INDEFINITE).show();
         }
@@ -66,50 +69,66 @@ public class MainActivity extends AppCompatActivity implements MainActivityFragm
             mTwoPane = false;
         }
 
+        if (mTwoPane) {
+            mDetailsNestedScrollView = (NestedScrollView) findViewById(R.id.nested_scroll_view_two_pane);
+            if (savedInstanceState != null && savedInstanceState.containsKey("scroll_position")) {
+                mDetailsNestedScrollView.setScrollY(savedInstanceState.getInt("scroll_position"));
+            }
+        }
+
         if (MainActivityFragment.mMovieDetailsArrayList.size() > 0) {
             last = false;
         }
 
         mFrameLayout = (FrameLayout) findViewById(R.id.movie_detail_container);
-        if (MainActivityFragment.mSortCriteria.equals(MainActivityFragment.mFavoritesTag) && last == true && mTwoPane == true) {
-            mFrameLayout.setVisibility(View.INVISIBLE);
+        if (MainActivityFragment.mSortCriteria.equals(
+                MainActivityFragment.mFavoritesTag) && last) {
+            MainActivityFragment.mMenuItemClearAll.setVisible(false);
+            if ( mTwoPane) {
+                mFrameLayout.setVisibility(View.INVISIBLE);
+            }
+            Toast.makeText(this, "You have removed all the favorites, nothing to show here",
+                    Toast.LENGTH_SHORT).show();
         }
 
-        if (savedInstanceState != null && savedInstanceState.containsKey("parcel") && mTwoPane) {
-            movieDetailsParcelable = savedInstanceState.getParcelable("parcel");
-            mMovieId = movieDetailsParcelable.mMovieId;
-            mMovieTitle = movieDetailsParcelable.mMovieTitle;
-            mMoviePlot = movieDetailsParcelable.mMoviePlot;
-            mMoviePosterFullPath = movieDetailsParcelable.mMoviePosterFullPath;
-            mMovieReleaseDate = movieDetailsParcelable.mMovieReleaseDate;
-            mMovieUserRating = movieDetailsParcelable.mMovieUserRating;
-            mMovieBackDropPath = movieDetailsParcelable.mMovieBackDropPath;
+        if (savedInstanceState != null && savedInstanceState.containsKey("parcel_movie_details") && mTwoPane) {
+            mMovieDetailsParcelable = savedInstanceState.getParcelable("parcel_movie_details");
+            mMovieId = mMovieDetailsParcelable.mMovieId;
+            mMovieTitle = mMovieDetailsParcelable.mMovieTitle;
+            mMoviePlot = mMovieDetailsParcelable.mMoviePlot;
+            mMoviePosterFullPath = mMovieDetailsParcelable.mMoviePosterFullPath;
+            mMovieReleaseDate = mMovieDetailsParcelable.mMovieReleaseDate;
+            mMovieUserRating = mMovieDetailsParcelable.mMovieUserRating;
+            mMovieBackDropPath = mMovieDetailsParcelable.mMovieBackDropPath;
         }
     }
 
     @Override
     protected void onStart() {
         super.onStart();
-        if (!postersToBeDeleted.isEmpty()) {
-            for (int i = 0; i < postersToBeDeleted.size(); i++) {
+        if (!mPostersToBeDeleted.isEmpty()) {
+            for (int i = 0; i < mPostersToBeDeleted.size(); i++) {
                 File posterFile = new File(
-                        postersToBeDeleted.get(i).mPosterPath,
-                        postersToBeDeleted.get(i).mFileName);
+                        mPostersToBeDeleted.get(i).mPosterPath,
+                        mPostersToBeDeleted.get(i).mFileName);
                 boolean deletedPoster = posterFile.delete();
                 File backDropFile = new File(
-                        postersToBeDeleted.get(i).mPosterPath,
-                        postersToBeDeleted.get(i).mFileName);
+                        mPostersToBeDeleted.get(i).mPosterPath,
+                        mPostersToBeDeleted.get(i).mFileName);
                 boolean deletedBackDrop = backDropFile.delete();
             }
         }
-        postersToBeDeleted.clear();
+        mPostersToBeDeleted.clear();
     }
 
     @Override
     public void onSaveInstanceState(Bundle outState) {
         super.onSaveInstanceState(outState);
         if (mMovieId != null) {
-            outState.putParcelable("parcel", movieDetailsParcelable);
+            outState.putParcelable("parcel_movie_details", mMovieDetailsParcelable);
+        }
+        if (mTwoPane) {
+            outState.putInt("scroll_position", mDetailsNestedScrollView.getScrollY());
         }
     }
 
@@ -133,7 +152,7 @@ public class MainActivity extends AppCompatActivity implements MainActivityFragm
         mMovieReleaseDate = movieReleaseDate;
         mMoviePlot = moviePlot;
         mMovieBackDropPath = movieBackDropPath;
-        movieDetailsParcelable = new MovieDetailsParcelable(
+        mMovieDetailsParcelable = new MovieDetailsParcelable(
                 mMovieId,
                 mMovieTitle,
                 mMoviePosterFullPath,
@@ -142,7 +161,7 @@ public class MainActivity extends AppCompatActivity implements MainActivityFragm
                 mMoviePlot,
                 mMovieBackDropPath
         );
-        if (mTwoPane == true) {
+        if (mTwoPane) {
             getSupportFragmentManager().beginTransaction()
                     .replace(R.id.movie_detail_container,
                             MovieDetailsFragment.newInstance(
@@ -231,7 +250,7 @@ public class MainActivity extends AppCompatActivity implements MainActivityFragm
                 contentValues.put(MoviesContentProvider.KEY_MOVIE_POSTER, posterPath);
                 contentValues.put(MoviesContentProvider.KEY_MOVIE_RELEASE_DATE, mMovieReleaseDate);
                 contentValues.put(MoviesContentProvider.KEY_MOVIE_USER_RATING, mMovieUserRating);
-                Uri uri = getContentResolver().insert(MoviesContentProvider.uri, contentValues);
+                Uri uri = getContentResolver().insert(MoviesContentProvider.mUri, contentValues);
 
             } else if (imageButton.getTag().equals("R.drawable.favorite_clicked")) {
 
@@ -239,7 +258,7 @@ public class MainActivity extends AppCompatActivity implements MainActivityFragm
                 imageButton.setTag("R.drawable.favorite");
                 Toast.makeText(this, "Movie removed from Favorites", Toast.LENGTH_SHORT).show();
 
-                String url = String.valueOf(MoviesContentProvider.uri) + "/" + mMovieId;
+                String url = String.valueOf(MoviesContentProvider.mUri) + "/" + mMovieId;
                 Uri queryUri = Uri.parse(url);
                 int i = getContentResolver().delete(queryUri, null, null);
                 if (i > 0) {
@@ -255,13 +274,16 @@ public class MainActivity extends AppCompatActivity implements MainActivityFragm
                     } else {
                         MainActivityFragment.mGridPosition = 0;
                     }
-                    MainActivityFragment.offline = true;
+                    MainActivityFragment.mOffline = true;
                     MainActivityFragment.updateGridOffline();
                     MainActivityFragment.mPopMoviesAdapter.notifyDataSetChanged();
                 }
-                if (MainActivityFragment.mMovieDetailsArrayList.size() == 0 && mTwoPane == true) {
+                if (MainActivityFragment.mMovieDetailsArrayList.size() == 0 && mTwoPane) {
                     last = true;
                     mFrameLayout.setVisibility(View.INVISIBLE);
+                    MainActivityFragment.mMenuItemClearAll.setVisible(false);
+                    Toast.makeText(this, "You have removed all the favorites, nothing to show here",
+                            Toast.LENGTH_SHORT).show();
                 } else {
                     last = false;
                 }
