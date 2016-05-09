@@ -37,7 +37,7 @@ public class MainActivityFragment extends Fragment {
     private String mFetchMoviesBaseUrl = null;
     private static boolean mEmptyDatabase;
     private final static String mApiKeyParam = "api_key";
-    private final static String mKeyValue = "2b34f0a753ed8e38b7546773dbed2720";
+    private final static String mKeyValue = "Key goes here";
     private static MainActivity mCallBack;
 
     public final static String mPopularityTag = "Popularity";
@@ -106,7 +106,7 @@ public class MainActivityFragment extends Fragment {
         mContext = getContext();
 
         if (MainActivityFragment.mSortCriteria.equals(MainActivityFragment.mFavoritesTag)
-                && MainActivity.last ) {
+                && MainActivity.last) {
             mMenuItemClearAll.setVisible(false);
             if (mCallBack.isTwoPane()) {
                 MainActivity.mFrameLayout.setVisibility(View.INVISIBLE);
@@ -149,6 +149,7 @@ public class MainActivityFragment extends Fragment {
         return rootView;
     }
 
+    /*Fetching trailers from themoviedb*/
     public static void fetchTrailers(final String movieId) {
         String fetchTrailersUrl = "https://api.themoviedb.org/3/movie/" + movieId + "/" + "videos";
         Uri builtUri = Uri.parse(fetchTrailersUrl)
@@ -168,6 +169,7 @@ public class MainActivityFragment extends Fragment {
         fetchMoviesTask.executeThread(url, queue, volleyCallBack);
     }
 
+    /*Extracting trailers from JSON result*/
     public static void getTrailersFromJson(String movieId, String jsonResult) {
         String trailerKey = null;
         final String TMDB_RESULTS = "results";
@@ -300,6 +302,7 @@ public class MainActivityFragment extends Fragment {
         }
     }
 
+    /*To clear all favorites*/
     private void clearAllFavorites() {
         Cursor c = mContext.getContentResolver().query(MoviesContentProvider.mUri,
                 null, null, null, null);
@@ -307,11 +310,13 @@ public class MainActivityFragment extends Fragment {
         String movieId;
 
         if (c.moveToFirst()) {
-            movieId = c.getString(c.getColumnIndex(MoviesContentProvider.KEY_ID));
-            File posterFile = new File(posterPath, movieId + ".png");
-            boolean deletedPoster = posterFile.delete();
-            File backDropFile = new File(posterPath, movieId + "back.png");
-            boolean deletedBackDrop = backDropFile.delete();
+            do {
+                movieId = c.getString(c.getColumnIndex(MoviesContentProvider.KEY_ID));
+                File posterFile = new File(posterPath, movieId + ".png");
+                boolean deletedPoster = posterFile.delete();
+                File backDropFile = new File(posterPath, movieId + "back.png");
+                boolean deletedBackDrop = backDropFile.delete();
+            } while (c.moveToNext());
         }
 
         int deleteCount = mContext.getContentResolver().delete(MoviesContentProvider.mUri, null, null);

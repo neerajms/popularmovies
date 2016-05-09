@@ -30,7 +30,8 @@ import java.io.IOException;
 import java.util.ArrayList;
 
 public class MainActivity extends AppCompatActivity implements MainActivityFragment.OnGridItemSelectedListener {
-    private boolean mTwoPane = false;
+    private boolean mTwoPane = false;//Denotes if the layout is two-pane
+    //For storing movie details locally
     private String mMovieId;
     private String mMovieTitle;
     private String mMoviePosterFullPath;
@@ -39,13 +40,13 @@ public class MainActivity extends AppCompatActivity implements MainActivityFragm
     private String mMoviePlot;
     private String mMovieBackDropPath;
 
-    private MovieDetailsParcelable mMovieDetailsParcelable;
+    private MovieDetailsParcelable mMovieDetailsParcelable;//For storing movie details as a parcelable
 
-    public static FrameLayout mFrameLayout;
+    public static FrameLayout mFrameLayout;//Layout of the details pane in the two-pane layout
 
-    public static boolean last = false;
+    public static boolean last = false;//Denotes if the movie removed from favorites is the last movie in favorites
 
-    public static ArrayList<MovieDetailsActivity.ClearPosterGarbage> mPostersToBeDeleted;
+    public static ArrayList<MovieDetailsActivity.ClearPosterGarbage> mPostersToBeDeleted;//Stores the posters to be deleted
 
     private NestedScrollView mDetailsNestedScrollView;
 
@@ -59,16 +60,19 @@ public class MainActivity extends AppCompatActivity implements MainActivityFragm
         mPostersToBeDeleted = new ArrayList<>();
 
         CoordinatorLayout coordinatorLayout = (CoordinatorLayout) findViewById(R.id.coordinator_layout);
+        /*Checking internet*/
         if (!isInternetOn(this)) {
             Snackbar.make(coordinatorLayout, "No internet connection", Snackbar.LENGTH_INDEFINITE).show();
         }
 
+        /*Checking if the layout is two-pane*/
         if (this.findViewById(R.id.movie_detail_container) != null) {
             mTwoPane = true;
         } else {
             mTwoPane = false;
         }
 
+        /*Saving the scroll position*/
         if (mTwoPane) {
             mDetailsNestedScrollView = (NestedScrollView) findViewById(R.id.nested_scroll_view_two_pane);
             if (savedInstanceState != null && savedInstanceState.containsKey("scroll_position")) {
@@ -80,17 +84,19 @@ public class MainActivity extends AppCompatActivity implements MainActivityFragm
             last = false;
         }
 
+        /*For handling "removed all favorites" situation*/
         mFrameLayout = (FrameLayout) findViewById(R.id.movie_detail_container);
         if (MainActivityFragment.mSortCriteria.equals(
                 MainActivityFragment.mFavoritesTag) && last) {
             MainActivityFragment.mMenuItemClearAll.setVisible(false);
-            if ( mTwoPane) {
+            if (mTwoPane) {
                 mFrameLayout.setVisibility(View.INVISIBLE);
             }
             Toast.makeText(this, "You have removed all the favorites, nothing to show here",
                     Toast.LENGTH_SHORT).show();
         }
 
+        /*Obtaining the savedinstancestate*/
         if (savedInstanceState != null && savedInstanceState.containsKey("parcel_movie_details") && mTwoPane) {
             mMovieDetailsParcelable = savedInstanceState.getParcelable("parcel_movie_details");
             mMovieId = mMovieDetailsParcelable.mMovieId;
@@ -106,6 +112,7 @@ public class MainActivity extends AppCompatActivity implements MainActivityFragm
     @Override
     protected void onStart() {
         super.onStart();
+        /*Deleting the unwanted posters saved on internal storage*/
         if (!mPostersToBeDeleted.isEmpty()) {
             for (int i = 0; i < mPostersToBeDeleted.size(); i++) {
                 File posterFile = new File(
@@ -198,6 +205,7 @@ public class MainActivity extends AppCompatActivity implements MainActivityFragm
         return true;
     }
 
+    /*Invoked when favorites button is clicked*/
     public void favoriteMovie(View view) {
         String posterPath = getFilesDir().getAbsolutePath();
         ImageButton imageButton = (ImageButton) findViewById(R.id.favorite_button);

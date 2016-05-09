@@ -34,9 +34,10 @@ public class MoviesContentProvider extends ContentProvider {
     public static final String KEY_MOVIE_OVERVIEW = "overview";
     public static final String KEY_MOVIE_BACKDROP = "backdrop";
 
-    private static final UriMatcher mUriMatcher = new UriMatcher(UriMatcher.NO_MATCH);
+    private static final UriMatcher mUriMatcher;
 
     static {
+        mUriMatcher = new UriMatcher(UriMatcher.NO_MATCH);
         mUriMatcher.addURI(AUTHORITY, TABLE_NAME, 1);
         mUriMatcher.addURI(AUTHORITY, TABLE_NAME + "/#", 2);
     }
@@ -99,7 +100,6 @@ public class MoviesContentProvider extends ContentProvider {
     @Override
     public int delete(Uri uri, String selection, String[] selectionArgs) {
         int count = 0;
-
         switch (mUriMatcher.match(uri)) {
             case 1:
                 count = database.delete(TABLE_NAME, selection, selectionArgs);

@@ -151,7 +151,7 @@ public class MovieDetailsActivity extends AppCompatActivity {
                 ClearPosterGarbage garbageBackDrop = new ClearPosterGarbage(backDropPath, mMovieId + "back.png");
                 MainActivity.mPostersToBeDeleted.add(garbageBackDrop);
             }
-            if (moviesCount == 0){
+            if (moviesCount == 0) {
                 MainActivity.last = true;
                 MainActivityFragment.mMenuItemClearAll.setVisible(false);
                 Toast.makeText(this, "You have removed all the favorites, nothing to show here",
