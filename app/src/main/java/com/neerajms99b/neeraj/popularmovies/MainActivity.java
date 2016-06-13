@@ -1,5 +1,6 @@
 package com.neerajms99b.neeraj.popularmovies;
 
+import android.content.BroadcastReceiver;
 import android.content.ContentValues;
 import android.content.Context;
 import android.content.Intent;
@@ -61,9 +62,9 @@ public class MainActivity extends AppCompatActivity implements MainActivityFragm
 
         CoordinatorLayout coordinatorLayout = (CoordinatorLayout) findViewById(R.id.coordinator_layout);
         /*Checking internet*/
-        if (!isInternetOn(this)) {
-            Snackbar.make(coordinatorLayout, "No internet connection", Snackbar.LENGTH_INDEFINITE).show();
-        }
+//        if (!isInternetOn(this)) {
+//            Snackbar.make(coordinatorLayout, "No internet connection", Snackbar.LENGTH_INDEFINITE).show();
+//        }
 
         /*Checking if the layout is two-pane*/
         if (this.findViewById(R.id.movie_detail_container) != null) {

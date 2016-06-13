@@ -1,13 +1,20 @@
 package com.neerajms99b.neeraj.popularmovies;
 
+import android.content.BroadcastReceiver;
 import android.content.Context;
+import android.content.Intent;
+import android.content.IntentFilter;
 import android.content.SharedPreferences;
 import android.content.pm.ActivityInfo;
 import android.database.Cursor;
+import android.net.ConnectivityManager;
+import android.net.NetworkInfo;
 import android.net.Uri;
-import android.support.annotation.Nullable;
-import android.support.v4.app.Fragment;
 import android.os.Bundle;
+import android.support.annotation.Nullable;
+import android.support.design.widget.CoordinatorLayout;
+import android.support.design.widget.Snackbar;
+import android.support.v4.app.Fragment;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.Menu;
@@ -37,8 +44,9 @@ public class MainActivityFragment extends Fragment {
     private String mFetchMoviesBaseUrl = null;
     private static boolean mEmptyDatabase;
     private final static String mApiKeyParam = "api_key";
-    private final static String mKeyValue = "Key goes here";
+    private final static String mKeyValue = "2b34f0a753ed8e38b7546773dbed2720";
     private static MainActivity mCallBack;
+    private NetorkReceiver mNetorkReceiver;
 
     public final static String mPopularityTag = "Popularity";
     public final static String mFavoritesTag = "Favorites";
@@ -69,13 +77,49 @@ public class MainActivityFragment extends Fragment {
             mSortCriteria = savedInstanceState.getString("sortcriteria");
             mGridPosition = savedInstanceState.getInt("gridposition");
             mMovieDetailsArrayList = savedInstanceState.getParcelableArrayList("parcel");
+            mOffline = savedInstanceState.getBoolean("isoffline");
         }
         setHasOptionsMenu(true);
     }
 
     @Override
+    public void onPause() {
+        super.onPause();
+        getContext().unregisterReceiver(mNetorkReceiver);
+    }
+
+    public class NetorkReceiver extends BroadcastReceiver {
+
+        @Override
+        public void onReceive(Context context, Intent intent) {
+            if (isInternetOn(getContext())) {
+                if (!mOffline) {
+                    updateMovieGridView();
+                }
+            } else {
+                CoordinatorLayout coordinatorLayout = (CoordinatorLayout) getActivity().findViewById(R.id.coordinator_layout);
+                Snackbar.make(coordinatorLayout, "No internet connection", Snackbar.LENGTH_INDEFINITE).show();
+            }
+        }
+    }
+
+    public boolean isInternetOn(Context context) {
+        ConnectivityManager connectivityManager =
+                (ConnectivityManager) context.getSystemService(Context.CONNECTIVITY_SERVICE);
+        NetworkInfo activeNetwork = connectivityManager.getActiveNetworkInfo();
+        boolean isConnected = activeNetwork != null &&
+                activeNetwork.isConnectedOrConnecting();
+        if (!isConnected) {
+            return false;
+        }
+        return true;
+    }
+
+    @Override
     public void onResume() {
         super.onResume();
+        mNetorkReceiver = new NetorkReceiver();
+        getContext().registerReceiver(mNetorkReceiver, new IntentFilter(ConnectivityManager.CONNECTIVITY_ACTION));
         if (mDataSetChanged && mSortCriteria.equals(mFavoritesTag)) {
             mMovieDetailsArrayList.clear();
             updateGridOffline();
@@ -118,7 +162,7 @@ public class MainActivityFragment extends Fragment {
         GridView moviesGridView = (GridView) rootView.findViewById(R.id.main_grid_view);
         mPopMoviesAdapter = new PopMoviesAdapter(getActivity());
 
-        if (savedInstanceState == null) {
+        if (savedInstanceState == null && !mOffline) {
             mMovieDetailsArrayList = new ArrayList<MovieDetailsParcelable>();
             updateMovieGridView();
         }
@@ -194,6 +238,7 @@ public class MainActivityFragment extends Fragment {
         outState.putString("sortcriteria", mSortCriteria);
         outState.putInt("gridposition", mGridPosition);
         outState.putParcelableArrayList("parcel", mMovieDetailsArrayList);
+        outState.putBoolean("isoffline",mOffline);
         super.onSaveInstanceState(outState);
     }
 
