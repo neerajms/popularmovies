@@ -44,7 +44,7 @@ public class MainActivityFragment extends Fragment {
     private String mFetchMoviesBaseUrl = null;
     private static boolean mEmptyDatabase;
     private final static String mApiKeyParam = "api_key";
-    private final static String mKeyValue = "2b34f0a753ed8e38b7546773dbed2720";
+    private final static String mKeyValue = "Key goes here";
     private static MainActivity mCallBack;
     private NetorkReceiver mNetorkReceiver;
 
