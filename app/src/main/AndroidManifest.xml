@@ -33,9 +33,11 @@
                 android:value="com.neerajms99b.neeraj.popularmovies.MainActivity" />
         </activity>
 
+        <receiver android:name=".MainActivityFragment$NetorkReceiver" />
+
         <provider
             android:name=".MoviesContentProvider"
-            android:authorities="com.neerajms99b.neeraj.popularmovies"></provider>
+            android:authorities="com.neerajms99b.neeraj.popularmovies"/>
     </application>
 
 </manifest>
