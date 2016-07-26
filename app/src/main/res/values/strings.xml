@@ -8,4 +8,5 @@
     <string name="string_overview">Overview</string>
     <string name="title_activity_test">Test</string>
     <string name="title_activity_review_display">ReviewDisplayActivity</string>
+    <string name="transition_poster">poster_shared</string>
 </resources>

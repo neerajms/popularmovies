@@ -1,6 +1,5 @@
 package com.neerajms99b.neeraj.popularmovies;
 
-import android.content.BroadcastReceiver;
 import android.content.ContentValues;
 import android.content.Context;
 import android.content.Intent;
@@ -11,7 +10,6 @@ import android.net.NetworkInfo;
 import android.net.Uri;
 import android.os.Bundle;
 import android.support.design.widget.CoordinatorLayout;
-import android.support.design.widget.Snackbar;
 import android.support.v4.widget.NestedScrollView;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
@@ -30,7 +28,7 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.util.ArrayList;
 
-public class MainActivity extends AppCompatActivity implements MainActivityFragment.OnGridItemSelectedListener {
+public class MainActivity extends AppCompatActivity implements MainActivityFragment.OnGridItemSelectedListener, MainActivityFragment.CallBackToMain {
     private boolean mTwoPane = false;//Denotes if the layout is two-pane
     //For storing movie details locally
     private String mMovieId;
@@ -43,9 +41,13 @@ public class MainActivity extends AppCompatActivity implements MainActivityFragm
 
     private MovieDetailsParcelable mMovieDetailsParcelable;//For storing movie details as a parcelable
 
-    public static FrameLayout mFrameLayout;//Layout of the details pane in the two-pane layout
+    private MainActivityFragment mMainActivityFragment;
+
+    public FrameLayout mFrameLayout;//Layout of the details pane in the two-pane layout
 
     public static boolean last = false;//Denotes if the movie removed from favorites is the last movie in favorites
+
+    public static int mMoviesCount;
 
     public static ArrayList<MovieDetailsActivity.ClearPosterGarbage> mPostersToBeDeleted;//Stores the posters to be deleted
 
@@ -59,6 +61,9 @@ public class MainActivity extends AppCompatActivity implements MainActivityFragm
         setSupportActionBar(toolbar);
 
         mPostersToBeDeleted = new ArrayList<>();
+
+        mMainActivityFragment = (MainActivityFragment) getSupportFragmentManager()
+                .findFragmentById(R.id.fragment);
 
         CoordinatorLayout coordinatorLayout = (CoordinatorLayout) findViewById(R.id.coordinator_layout);
         /*Checking internet*/
@@ -81,7 +86,7 @@ public class MainActivity extends AppCompatActivity implements MainActivityFragm
             }
         }
 
-        if (MainActivityFragment.mMovieDetailsArrayList.size() > 0) {
+        if (mMainActivityFragment.mMovieDetailsArrayList.size() > 0) {
             last = false;
         }
 
@@ -89,7 +94,7 @@ public class MainActivity extends AppCompatActivity implements MainActivityFragm
         mFrameLayout = (FrameLayout) findViewById(R.id.movie_detail_container);
         if (MainActivityFragment.mSortCriteria.equals(
                 MainActivityFragment.mFavoritesTag) && last) {
-            MainActivityFragment.mMenuItemClearAll.setVisible(false);
+            mMainActivityFragment.mMenuItemClearAll.setVisible(false);
             if (mTwoPane) {
                 mFrameLayout.setVisibility(View.INVISIBLE);
             }
@@ -179,7 +184,8 @@ public class MainActivity extends AppCompatActivity implements MainActivityFragm
                                     mMovieUserRating,
                                     mMovieReleaseDate,
                                     mMoviePlot,
-                                    mMovieBackDropPath), "MovieDetailsFragment").commit();
+                                    mMovieBackDropPath), "MovieDetailsFragment")
+                    .commit();
         } else {
             Intent movieDetailsIntent = new Intent(this, MovieDetailsActivity.class);
             movieDetailsIntent.putExtra("movieId", mMovieId);
@@ -277,17 +283,17 @@ public class MainActivity extends AppCompatActivity implements MainActivityFragm
                 }
 
                 if (isTwoPane() && MainActivityFragment.mSortCriteria.equals(MainActivityFragment.mFavoritesTag)) {
-                    MainActivityFragment.mMovieDetailsArrayList.clear();
+                    mMainActivityFragment.mMovieDetailsArrayList.clear();
                     if (MainActivityFragment.mGridPosition > 1) {
                         MainActivityFragment.mGridPosition = MainActivityFragment.mGridPosition - 1;
                     } else {
                         MainActivityFragment.mGridPosition = 0;
                     }
                     MainActivityFragment.mOffline = true;
-                    MainActivityFragment.updateGridOffline();
-                    MainActivityFragment.mPopMoviesAdapter.notifyDataSetChanged();
+                    mMainActivityFragment.updateGridOffline();
+                    mMainActivityFragment.mPopMoviesAdapter.notifyDataSetChanged();
                 }
-                if (MainActivityFragment.mMovieDetailsArrayList.size() == 0 && mTwoPane) {
+                if (mMainActivityFragment.mMovieDetailsArrayList.size() == 0 && mTwoPane) {
                     last = true;
                     mFrameLayout.setVisibility(View.INVISIBLE);
                     MainActivityFragment.mMenuItemClearAll.setVisible(false);
@@ -300,5 +306,20 @@ public class MainActivity extends AppCompatActivity implements MainActivityFragm
         } else {
             Toast.makeText(this, "Please select a movie", Toast.LENGTH_SHORT).show();
         }
+    }
+
+    @Override
+    public void callBackHideRightPane() {
+        mFrameLayout.setVisibility(View.INVISIBLE);
+    }
+
+    @Override
+    public void callBackShowRightPane() {
+        mFrameLayout.setVisibility(View.VISIBLE);
+    }
+
+    @Override
+    public void callBackToPassCount(int count) {
+        mMoviesCount = count;
     }
 }

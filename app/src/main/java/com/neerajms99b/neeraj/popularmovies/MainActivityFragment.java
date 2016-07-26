@@ -7,6 +7,8 @@ import android.content.IntentFilter;
 import android.content.SharedPreferences;
 import android.content.pm.ActivityInfo;
 import android.database.Cursor;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
 import android.net.Uri;
@@ -23,17 +25,22 @@ import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.AdapterView;
+import android.widget.ArrayAdapter;
 import android.widget.GridView;
+import android.widget.ImageView;
 import android.widget.Toast;
 
 import com.android.volley.RequestQueue;
 import com.android.volley.toolbox.Volley;
+import com.squareup.picasso.Picasso;
 
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
 import java.util.ArrayList;
 
 /**
@@ -45,7 +52,7 @@ public class MainActivityFragment extends Fragment {
     private static boolean mEmptyDatabase;
     private final static String mApiKeyParam = "api_key";
     private final static String mKeyValue = "Key goes here";
-    private static MainActivity mCallBack;
+    private MainActivity mCallBack;
     private NetorkReceiver mNetorkReceiver;
 
     public final static String mPopularityTag = "Popularity";
@@ -55,17 +62,17 @@ public class MainActivityFragment extends Fragment {
     public static boolean mDataSetChanged;
     public static int mGridPosition;
     public static boolean mOffline;
-    public static Context mContext;
-    public static PopMoviesAdapter mPopMoviesAdapter = null;
-    public static ArrayList<MovieDetailsParcelable> mMovieDetailsArrayList = null;
     public static String mSortCriteria = mPopularityTag;
+
+    public Context mContext;
+    public PopMoviesAdapter mPopMoviesAdapter = null;
+    public ArrayList<MovieDetailsParcelable> mMovieDetailsArrayList = null;
 
     public static MenuItem mMenuItemClearAll;
 
-    public MainActivityFragment() {
-    }
+    public MainActivityFragment() {}
 
-    public static ArrayList<MovieDetailsParcelable> getMovieDetailsArrayList() {
+    public ArrayList<MovieDetailsParcelable> getMovieDetailsArrayList() {
         return mMovieDetailsArrayList;
     }
 
@@ -153,7 +160,8 @@ public class MainActivityFragment extends Fragment {
                 && MainActivity.last) {
             mMenuItemClearAll.setVisible(false);
             if (mCallBack.isTwoPane()) {
-                MainActivity.mFrameLayout.setVisibility(View.INVISIBLE);
+//                MainActivity.mFrameLayout.setVisibility(View.INVISIBLE);
+                mCallBack.callBackHideRightPane();
             }
             Toast.makeText(getContext(),
                     "You have removed all the favorites, nothing to show here",
@@ -194,7 +202,7 @@ public class MainActivityFragment extends Fragment {
     }
 
     /*Fetching trailers from themoviedb*/
-    public static void fetchTrailers(final String movieId) {
+    public void fetchTrailers(final String movieId) {
         String fetchTrailersUrl = "https://api.themoviedb.org/3/movie/" + movieId + "/" + "videos";
         Uri builtUri = Uri.parse(fetchTrailersUrl)
                 .buildUpon()
@@ -214,7 +222,7 @@ public class MainActivityFragment extends Fragment {
     }
 
     /*Extracting trailers from JSON result*/
-    public static void getTrailersFromJson(String movieId, String jsonResult) {
+    public void getTrailersFromJson(String movieId, String jsonResult) {
         String trailerKey = null;
         final String TMDB_RESULTS = "results";
         final String TMDB_TRAILER_KEY = "key";
@@ -273,6 +281,16 @@ public class MainActivityFragment extends Fragment {
         }
     }
 
+    public interface CallBackToMain {
+        public void callBackHideRightPane();
+        public void callBackShowRightPane();
+        public void callBackToPassCount(int count);
+    }
+
+    public interface PassDataToAdapter{
+        public void getDetailsArrayList(ArrayList<MovieDetailsParcelable> list);
+    }
+
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
         int id = item.getItemId();
@@ -300,8 +318,8 @@ public class MainActivityFragment extends Fragment {
                 return true;
 
             case R.id.menuSortPopularity:
-                MainActivity.last = false;
                 item.setChecked(true);
+                MainActivity.last = false;
                 mMenuItemClearAll.setVisible(false);
                 mCallBack.setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_SENSOR);
                 mGridPosition = 0;
@@ -311,7 +329,7 @@ public class MainActivityFragment extends Fragment {
                 mMovieDetailsArrayList.clear();
                 mPopMoviesAdapter.notifyDataSetChanged();
                 if (mCallBack.isTwoPane()) {
-                    MainActivity.mFrameLayout.setVisibility(View.VISIBLE);
+                    mCallBack.callBackShowRightPane();
                 }
                 return true;
 
@@ -327,7 +345,7 @@ public class MainActivityFragment extends Fragment {
                 mMovieDetailsArrayList.clear();
                 mPopMoviesAdapter.notifyDataSetChanged();
                 if (mCallBack.isTwoPane()) {
-                    MainActivity.mFrameLayout.setVisibility(View.VISIBLE);
+                    mCallBack.callBackShowRightPane();
                 }
                 return true;
 
@@ -335,7 +353,7 @@ public class MainActivityFragment extends Fragment {
                 clearAllFavorites();
                 mMenuItemClearAll.setVisible(false);
                 if (mCallBack.isTwoPane()) {
-                    MainActivity.mFrameLayout.setVisibility(View.INVISIBLE);
+                    mCallBack.callBackHideRightPane();
                 }
                 MainActivity.last = true;
                 Toast.makeText(getContext(), "You have removed all the favorites, nothing to show here",
@@ -369,7 +387,7 @@ public class MainActivityFragment extends Fragment {
         mPopMoviesAdapter.notifyDataSetChanged();
     }
 
-    public static void updateGridOffline() {
+    public void updateGridOffline() {
         Cursor c = mContext.getContentResolver().query(MoviesContentProvider.mUri,
                 null, null, null, null);
 
@@ -437,12 +455,15 @@ public class MainActivityFragment extends Fragment {
         fetchMoviesTask.executeThread(url, queue, volleyCallBack);
     }
 
-    protected static void onPostExecute() {
+    protected void onPostExecute() {
         if (!mMovieDetailsArrayList.isEmpty()) {
             for (int i = 0; i < mMovieDetailsArrayList.size(); ++i) {
                 mPopMoviesAdapter.add(mMovieDetailsArrayList.get(i));
             }
+//            mPopMoviesAdapter.getDetailsArrayList(mMovieDetailsArrayList);
+//            mMoviesCount = mMovieDetailsArrayList.size();
             mPopMoviesAdapter.notifyDataSetChanged();
+            mCallBack.callBackToPassCount(mMovieDetailsArrayList.size());
 
             if (mCallBack.isTwoPane()) {
                 MovieDetailsParcelable tempObj = mMovieDetailsArrayList.get(mGridPosition);
@@ -504,5 +525,62 @@ public class MainActivityFragment extends Fragment {
             mMovieDetailsArrayList.add(movie);
         }
         return mMovieDetailsArrayList;
+    }
+    public class PopMoviesAdapter extends ArrayAdapter<MovieDetailsParcelable> {
+        Context mContext;
+
+        PopMoviesAdapter(Context context) {
+            super(context, 0);
+            mContext = context;
+        }
+
+        @Override
+        public int getCount() {
+            return mMovieDetailsArrayList.size();
+        }
+
+        @Override
+        public long getItemId(int position) {
+            return position;
+        }
+
+        @Override
+        public View getView(int position, View convertView, ViewGroup parent) {
+            ImageView imageView;
+
+            if (convertView == null) {
+                float density = getContext().getResources().getDisplayMetrics().density;
+                imageView = new ImageView(mContext);
+                if (new MainActivity().isTwoPane()) {
+                    imageView.setLayoutParams(
+                            new GridView.LayoutParams(
+                                    ViewGroup.LayoutParams.MATCH_PARENT, 50 * (int) density));
+                } else {
+                    imageView.setLayoutParams(
+                            new GridView.LayoutParams(
+                                    ViewGroup.LayoutParams.MATCH_PARENT, 250 * (int) density));
+                }
+                imageView.setScaleType(ImageView.ScaleType.FIT_XY);
+            } else {
+                imageView = (ImageView) convertView;
+            }
+
+            MovieDetailsParcelable tempMovieObject = mMovieDetailsArrayList.get(position);
+            if (mOffline) {
+                try {
+                    File f = new File(tempMovieObject.mMoviePosterFullPath, tempMovieObject.mMovieId + ".png");
+                    Bitmap b = BitmapFactory.decodeStream(new FileInputStream(f));
+                    imageView.setImageBitmap(b);
+                } catch (FileNotFoundException e) {
+                    e.printStackTrace();
+                }
+            } else {
+                Picasso.with(mContext)
+                        .load(tempMovieObject.mMoviePosterFullPath)
+                        .placeholder(R.drawable.placeholder_loading)
+                        .into(imageView);
+            }
+            return imageView;
+        }
     }
 }

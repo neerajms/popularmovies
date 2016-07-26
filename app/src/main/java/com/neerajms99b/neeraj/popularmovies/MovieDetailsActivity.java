@@ -49,7 +49,7 @@ public class MovieDetailsActivity extends AppCompatActivity {
             mDetailsNestedScrollView.setScrollY(savedInstanceState.getInt("scroll_position"));
         }
 
-        moviesCount = MainActivityFragment.mMovieDetailsArrayList.size();
+        moviesCount = MainActivity.mMoviesCount;
 
         Intent intent = getIntent();
         mMovieId = intent.getExtras().getString("movieId");
